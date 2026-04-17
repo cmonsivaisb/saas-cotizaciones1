@@ -1,0 +1,455 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTH & USERS
+// ============================================
+
+enum UserRole {
+  owner
+  admin
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(owner)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  ownedCompany Company?
+
+  @@map("users")
+}
+
+// ============================================
+// COMPANY & MULTI-TENANT
+// ============================================
+
+enum CompanyStatus {
+  active
+  grace_period
+  suspended
+  cancelled
+}
+
+model Company {
+  id           String        @id @default(cuid())
+  ownerUserId  String        @unique
+  name         String
+  contactName  String
+  email        String
+  phone        String
+  city         String
+  businessType String
+  status       CompanyStatus @default(active)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  owner         User           @relation(fields: [ownerUserId], references: [id])
+  subscription  Subscription?
+  customers     Customer[]
+  items         Item[]
+  inventoryMovements InventoryMovement[]
+  quotes        Quote[]
+  followUps     FollowUp[]
+  orders        Order[]
+  orderPayments OrderPayment[]
+
+  @@map("companies")
+}
+
+// ============================================
+// SAAS BILLING
+// ============================================
+
+model Plan {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  name         String
+  priceMxn     Float
+  durationDays Int      @default(30)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+enum SubscriptionStatus {
+  pilot
+  active
+  grace_period
+  suspended
+  cancelled
+}
+
+model Subscription {
+  id                String              @id @default(cuid())
+  companyId         String              @unique
+  planId            String
+  status            SubscriptionStatus  @default(pilot)
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  nextBillingAt     DateTime
+  graceUntil        DateTime?
+  suspendedAt       DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  // Relations
+  company  Company   @relation(fields: [companyId], references: [id])
+  plan     Plan      @relation(fields: [planId], references: [id])
+  invoices Invoice[]
+
+  @@map("subscriptions")
+}
+
+enum InvoiceStatus {
+  pending
+  paid
+  expired
+  cancelled
+}
+
+model Invoice {
+  id               String        @id @default(cuid())
+  companyId        String
+  subscriptionId   String
+  concept          String
+  amountMxn        Float
+  currency         String        @default("MXN")
+  status           InvoiceStatus @default(pending)
+  dueAt            DateTime
+  paidAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  company         Company         @relation(fields: [companyId], references: [id])
+  subscription     Subscription    @relation(fields: [subscriptionId], references: [id])
+  paymentAttempts PaymentAttempt[]
+
+  @@map("invoices")
+}
+
+enum PaymentAttemptStatus {
+  created
+  redirected
+  approved
+  pending
+  rejected
+  cancelled
+  error
+}
+
+model PaymentAttempt {
+  id                    String              @id @default(cuid())
+  invoiceId             String
+  provider              String              @default("mercadopago")
+  providerPreferenceId  String?
+  providerPaymentId     String?
+  externalReference     String?
+  checkoutUrl           String?
+  status                PaymentAttemptStatus @default(created)
+  rawResponseJson       Json?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  // Relations
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@map("payment_attempts")
+}
+
+model MercadoPagoWebhookEvent {
+  id             String   @id @default(cuid())
+  topic          String
+  action         String?
+  resourceId     String
+  signatureValid Boolean  @default(false)
+  payloadJson    Json
+  processed      Boolean  @default(false)
+  processedAt    DateTime?
+  createdAt      DateTime @default(now())
+
+  @@map("mercadopago_webhook_events")
+}
+
+// ============================================
+// LEADS
+// ============================================
+
+enum LeadStatus {
+  new
+  contacted
+  qualified
+  closed
+  lost
+}
+
+model Lead {
+  id           String     @id @default(cuid())
+  name         String
+  businessName String
+  email        String
+  phone        String
+  businessType String
+  message      String?
+  status       LeadStatus @default(new)
+  source       String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("leads")
+}
+
+// ============================================
+// CUSTOMERS
+// ============================================
+
+model Customer {
+  id           String   @id @default(cuid())
+  companyId    String
+  businessName String
+  contactName  String
+  phone        String
+  email        String?
+  source       String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  company Company  @relation(fields: [companyId], references: [id])
+  quotes  Quote[]
+  orders  Order[]
+
+  @@map("customers")
+}
+
+// ============================================
+// ITEMS / INVENTORY
+// ============================================
+
+model Item {
+  id             String   @id @default(cuid())
+  companyId      String
+  sku            String?
+  name           String
+  description    String?
+  unit           String?
+  salePrice      Float
+  costPrice      Float?
+  stockQuantity  Int      @default(0)
+  minimumStock   Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  company            Company            @relation(fields: [companyId], references: [id])
+  inventoryMovements InventoryMovement[]
+  quoteItems         QuoteItem[]
+  orderItems         OrderItem[]
+
+  @@map("items")
+}
+
+enum InventoryMovementType {
+  in
+  out
+  adjustment
+}
+
+model InventoryMovement {
+  id             String                @id @default(cuid())
+  companyId      String
+  itemId         String
+  movementType   InventoryMovementType
+  quantity       Int
+  previousStock  Int
+  newStock       Int
+  referenceType  String?
+  referenceId    String?
+  notes          String?
+  createdAt      DateTime              @default(now())
+
+  // Relations
+  company Company @relation(fields: [companyId], references: [id])
+  item    Item    @relation(fields: [itemId], references: [id])
+
+  @@map("inventory_movements")
+}
+
+// ============================================
+// QUOTES
+// ============================================
+
+enum QuoteStatus {
+  draft
+  sent
+  follow_up
+  approved
+  rejected
+  expired
+}
+
+model Quote {
+  id         String      @id @default(cuid())
+  companyId  String
+  customerId String
+  folio      String
+  quoteDate  DateTime    @default(now())
+  validUntil DateTime
+  status     QuoteStatus @default(draft)
+  subtotal   Float
+  total      Float
+  notes      String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  // Relations
+  company    Company     @relation(fields: [companyId], references: [id])
+  customer   Customer    @relation(fields: [customerId], references: [id])
+  items      QuoteItem[]
+  followUps  FollowUp[]
+  orders     Order[]
+
+  @@map("quotes")
+}
+
+model QuoteItem {
+  id          String   @id @default(cuid())
+  quoteId     String
+  itemId      String?
+  description String
+  qty         Int
+  unitPrice   Float
+  amount      Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  item  Item? @relation(fields: [itemId], references: [id])
+
+  @@map("quote_items")
+}
+
+// ============================================
+// FOLLOW-UPS
+// ============================================
+
+enum FollowUpResult {
+  no_response
+  interested
+  waiting
+  won
+  lost
+}
+
+model FollowUp {
+  id        String         @id @default(cuid())
+  companyId String
+  quoteId   String
+  dueDate   DateTime
+  notes     String
+  result    FollowUpResult?
+  createdAt DateTime       @default(now())
+
+  // Relations
+  company Company @relation(fields: [companyId], references: [id])
+  quote   Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@map("follow_ups")
+}
+
+// ============================================
+// ORDERS
+// ============================================
+
+enum OrderStatus {
+  pending
+  in_progress
+  partial_delivered
+  delivered
+  cancelled
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  companyId  String
+  customerId String
+  quoteId    String?
+  orderDate  DateTime    @default(now())
+  dueDate    DateTime?
+  status     OrderStatus @default(pending)
+  subtotal   Float
+  total      Float
+  notes      String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  // Relations
+  company  Company       @relation(fields: [companyId], references: [id])
+  customer Customer      @relation(fields: [customerId], references: [id])
+  quote    Quote?        @relation(fields: [quoteId], references: [id])
+  items    OrderItem[]
+  payments OrderPayment[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id                   String   @id @default(cuid())
+  orderId              String
+  itemId               String?
+  description          String
+  qty                  Int
+  unitPrice            Float
+  amount               Float
+  affectsInventory     Boolean  @default(true)
+  inventoryDiscountedAt DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relations
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  item  Item? @relation(fields: [itemId], references: [id])
+
+  @@map("order_items")
+}
+
+model OrderPayment {
+  id          String   @id @default(cuid())
+  companyId   String
+  orderId     String
+  paymentDate DateTime @default(now())
+  amount      Float
+  method      String
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  company Company @relation(fields: [companyId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_payments")
+}
