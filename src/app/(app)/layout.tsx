@@ -24,7 +24,7 @@ const navigation = [
   { name: 'Clientes', href: '/clients', icon: Users },
   { name: 'Cotizaciones', href: '/quotes', icon: FileText },
   { name: 'Pedidos', href: '/orders', icon: Package },
-  { name: 'Facturas', href: '/invoices', icon: DollarSign },
+  { name: 'Facturación', href: '/billing', icon: DollarSign },
   { name: 'Inventario', href: '/inventory', icon: Package },
   { name: 'Configuración', href: '/settings', icon: Settings },
 ]
