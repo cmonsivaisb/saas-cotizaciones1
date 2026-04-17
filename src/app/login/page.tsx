@@ -38,8 +38,9 @@ export default function LoginPage() {
         return
       }
 
-      // Redirect to dashboard on success using Next.js router
-      router.push("/dashboard")
+      // Redirect based on user role
+      const redirectPath = data.user.role === 'admin' ? '/admin' : '/dashboard'
+      router.push(redirectPath)
       router.refresh()
     } catch (err) {
       setError("Error de conexión. Intenta nuevamente.")
