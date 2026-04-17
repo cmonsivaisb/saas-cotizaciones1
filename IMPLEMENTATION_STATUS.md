@@ -115,71 +115,71 @@
 ## 📋 Fases Pendientes
 
 ### Fase 3: Entidades de Negocio Core
-- [ ] API routes para Customers
-- [ ] API routes para Items
+- [x] API routes para Customers
+- [x] API routes para Items
 - [ ] API routes para InventoryMovements
-- [ ] Páginas de Customers (lista, detalle, formulario)
-- [ ] Páginas de Items (lista, detalle, formulario)
+- [x] Páginas de Customers (lista, detalle, formulario)
+- [x] Páginas de Items (lista, detalle, formulario)
 - [ ] Ajuste de stock
 - [ ] Historial de movimientos
 
 ### Fase 4: Cotizaciones y Seguimientos
-- [ ] API routes para Quotes
-- [ ] API routes para QuoteItems
+- [x] API routes para Quotes
+- [x] API routes para QuoteItems
 - [ ] API routes para FollowUps
-- [ ] Páginas de Quotes (lista, detalle, formulario)
-- [ ] Generación de PDF
+- [x] Páginas de Quotes (lista, detalle, formulario)
+- [x] Generación de PDF
 - [ ] Conversión a pedido
 - [ ] Gestión de seguimientos
 
 ### Fase 5: Pedidos y Cobranza
-- [ ] API routes para Orders
-- [ ] API routes para OrderItems
-- [ ] API routes para OrderPayments
-- [ ] Páginas de Orders (lista, detalle, formulario)
-- [ ] Registro de pagos
-- [ ] Cálculo de saldos
+- [x] API routes para Orders
+- [x] API routes para OrderItems
+- [x] API routes para OrderPayments
+- [x] Páginas de Orders (lista, detalle, formulario)
+- [x] Registro de pagos
+- [x] Cálculo de saldos
 - [ ] Descuento de inventario al entregar
 
 ### Fase 6: Sistema de Billing SaaS
-- [ ] API routes para Billing
-- [ ] Página de Billing
-- [ ] Página de Billing Locked
-- [ ] Banner de gracia period
+- [x] API routes para Billing
+- [x] Página de Billing
+- [x] Página de Billing Locked
+- [x] Banner de gracia period
 - [ ] Gestión de planes
-- [ ] Historial de facturas
+- [x] Historial de facturas
 
 ### Fase 7: Integración Mercado Pago
-- [ ] Configuración de Mercado Pago
-- [ ] Creación de preferencias
-- [ ] Webhook handler
-- [ ] Páginas de retorno (success, failure, pending)
-- [ ] Manejo de estados de pago
-- [ ] Reactivación automática
+- [x] Configuración de Mercado Pago
+- [x] Creación de preferencias
+- [x] Webhook handler
+- [x] Páginas de retorno (success, failure, pending)
+- [x] Manejo de estados de pago
+- [x] Reactivación automática
 
 ### Fase 8: Cron Jobs
-- [ ] `/api/cron/billing-cycle` - Ciclo de facturación
-- [ ] `/api/cron/suspend-overdue` - Suspensión por falta de pago
+- [x] `/api/cron/billing-cycle` - Ciclo de facturación
+- [x] `/api/cron/suspend-overdue` - Suspensión por falta de pago
 - [ ] Pruebas de cron jobs
 
 ### Fase 9: Panel de Administración
-- [ ] Dashboard admin
-- [ ] Gestión de empresas
-- [ ] Gestión de suscripciones
-- [ ] Gestión de facturas
-- [ ] Gestión de pagos
-- [ ] Gestión de leads
+- [x] Dashboard admin
+- [x] Gestión de empresas
+- [x] Gestión de suscripciones
+- [x] Gestión de facturas
+- [x] Gestión de pagos
+- [x] Gestión de leads
 - [ ] Suspensión/Reactivación manual
 
 ### Fase 10: Middleware y Seguridad Avanzada
-- [ ] Validación de tenant en todas las APIs
+- [x] Validación de tenant en todas las APIs
 - [ ] Rate limiting
 - [ ] CSRF protection
 - [ ] Logging de seguridad
 
 ### Fase 11: Polish y QA
-- [ ] Estados de carga (loading skeletons)
-- [ ] Estados vacíos (empty states)
+- [x] Estados de carga (loading skeletons)
+- [x] Estados vacíos (empty states)
 - [ ] Estados de error
 - [ ] Validación de responsive
 - [ ] Pruebas de accesibilidad

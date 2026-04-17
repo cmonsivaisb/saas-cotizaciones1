@@ -1,4 +1,6 @@
 import Link from "next/link"
+import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
@@ -14,7 +16,14 @@ import {
   Zap
 } from "lucide-react"
 
-export default function HomePage() {
+export default async function HomePage() {
+  const cookieStore = await cookies()
+  const session = cookieStore.get('session')?.value
+
+  // Redirect to dashboard if user is logged in
+  if (session) {
+    redirect('/dashboard')
+  }
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

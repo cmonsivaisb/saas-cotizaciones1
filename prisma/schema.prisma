@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ============================================
@@ -61,6 +60,7 @@ model Company {
   // Relations
   owner         User           @relation(fields: [ownerUserId], references: [id])
   subscription  Subscription?
+  invoices      Invoice[]
   customers     Customer[]
   items         Item[]
   inventoryMovements InventoryMovement[]

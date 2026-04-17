@@ -1,4 +1,8 @@
+"use client"
+
 import Link from "next/link"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -6,6 +10,43 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FileText, ArrowRight } from "lucide-react"
 
 export default function LoginPage() {
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || "Error al iniciar sesión")
+        setLoading(false)
+        return
+      }
+
+      // Redirect to dashboard on success using Next.js router
+      router.push("/dashboard")
+      router.refresh()
+    } catch (err) {
+      setError("Error de conexión. Intenta nuevamente.")
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -30,7 +71,12 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email">Correo electrónico</Label>
                 <Input
@@ -38,6 +84,8 @@ export default function LoginPage() {
                   type="email"
                   placeholder="tu@empresa.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -52,11 +100,13 @@ export default function LoginPage() {
                   type="password"
                   placeholder="•••••••••"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Iniciar sesión
-                <ArrowRight className="ml-2 h-4 w-4" />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+                {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
               </Button>
             </form>
           </CardContent>

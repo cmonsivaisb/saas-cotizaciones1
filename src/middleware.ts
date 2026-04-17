@@ -12,6 +12,7 @@ const publicRoutes = [
   '/api/leads',
   '/api/auth/login',
   '/api/auth/register',
+  '/api/auth/logout',
   '/api/webhooks/mercadopago',
   '/api/cron/billing-cycle',
   '/api/cron/suspend-overdue',
@@ -30,6 +31,9 @@ const allowedWhenSuspended = [
   '/api/billing',
   '/api/billing/pay',
   '/api/billing/return',
+  '/api/billing/return/success',
+  '/api/billing/return/failure',
+  '/api/billing/return/pending',
 ]
 
 export async function middleware(request: NextRequest) {
