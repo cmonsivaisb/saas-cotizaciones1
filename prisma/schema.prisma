@@ -1,21 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-}
-
-// ============================================
-// AUTH & USERS
-// ============================================
-
-enum UserRole {
-  owner
-  admin
 }
 
 model User {
@@ -26,182 +14,118 @@ model User {
   role         UserRole @default(owner)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  // Relations
   ownedCompany Company?
 
   @@map("users")
 }
 
-// ============================================
-// COMPANY & MULTI-TENANT
-// ============================================
-
-enum CompanyStatus {
-  active
-  grace_period
-  suspended
-  cancelled
-}
-
 model Company {
-  id           String        @id @default(cuid())
-  ownerUserId  String        @unique
-  name         String
-  contactName  String
-  email        String
-  phone        String
-  city         String
-  businessType String
-  status       CompanyStatus @default(active)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-
-  // Relations
-  owner         User           @relation(fields: [ownerUserId], references: [id])
-  subscription  Subscription?
-  invoices      Invoice[]
-  customers     Customer[]
-  items         Item[]
+  id                 String              @id @default(cuid())
+  ownerUserId        String              @unique
+  name               String
+  contactName        String
+  email              String
+  phone              String
+  city               String
+  businessType       String
+  status             CompanyStatus       @default(active)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  owner              User                @relation(fields: [ownerUserId], references: [id])
+  customers          Customer[]
+  followUps          FollowUp[]
   inventoryMovements InventoryMovement[]
-  quotes        Quote[]
-  followUps     FollowUp[]
-  orders        Order[]
-  orderPayments OrderPayment[]
+  invoices           Invoice[]
+  items              Item[]
+  orderPayments      OrderPayment[]
+  orders             Order[]
+  quotes             Quote[]
+  subscription       Subscription?
 
   @@map("companies")
 }
 
-// ============================================
-// SAAS BILLING
-// ============================================
-
 model Plan {
-  id           String   @id @default(cuid())
-  code         String   @unique
-  name         String
-  priceMxn     Float
-  durationDays Int      @default(30)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Relations
+  id            String         @id @default(cuid())
+  code          String         @unique
+  name          String
+  priceMxn      Float
+  durationDays  Int            @default(30)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   subscriptions Subscription[]
 
   @@map("plans")
 }
 
-enum SubscriptionStatus {
-  pilot
-  active
-  grace_period
-  suspended
-  cancelled
-}
-
 model Subscription {
-  id                String              @id @default(cuid())
-  companyId         String              @unique
-  planId            String
-  status            SubscriptionStatus  @default(pilot)
+  id                 String             @id @default(cuid())
+  companyId          String             @unique
+  planId             String
+  status             SubscriptionStatus @default(pilot)
   currentPeriodStart DateTime
   currentPeriodEnd   DateTime
-  nextBillingAt     DateTime
-  graceUntil        DateTime?
-  suspendedAt       DateTime?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-
-  // Relations
-  company  Company   @relation(fields: [companyId], references: [id])
-  plan     Plan      @relation(fields: [planId], references: [id])
-  invoices Invoice[]
+  nextBillingAt      DateTime
+  graceUntil         DateTime?
+  suspendedAt        DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  invoices           Invoice[]
+  company            Company            @relation(fields: [companyId], references: [id])
+  plan               Plan               @relation(fields: [planId], references: [id])
 
   @@map("subscriptions")
 }
 
-enum InvoiceStatus {
-  pending
-  paid
-  expired
-  cancelled
-}
-
 model Invoice {
-  id               String        @id @default(cuid())
-  companyId        String
-  subscriptionId   String
-  concept          String
-  amountMxn        Float
-  currency         String        @default("MXN")
-  status           InvoiceStatus @default(pending)
-  dueAt            DateTime
-  paidAt           DateTime?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-
-  // Relations
-  company         Company         @relation(fields: [companyId], references: [id])
-  subscription     Subscription    @relation(fields: [subscriptionId], references: [id])
+  id              String           @id @default(cuid())
+  companyId       String
+  subscriptionId  String
+  concept         String
+  amountMxn       Float
+  currency        String           @default("MXN")
+  status          InvoiceStatus    @default(pending)
+  dueAt           DateTime
+  paidAt          DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  company         Company          @relation(fields: [companyId], references: [id])
+  subscription    Subscription     @relation(fields: [subscriptionId], references: [id])
   paymentAttempts PaymentAttempt[]
 
   @@map("invoices")
 }
 
-enum PaymentAttemptStatus {
-  created
-  redirected
-  approved
-  pending
-  rejected
-  cancelled
-  error
-}
-
 model PaymentAttempt {
-  id                    String              @id @default(cuid())
-  invoiceId             String
-  provider              String              @default("mercadopago")
-  providerPreferenceId  String?
-  providerPaymentId     String?
-  externalReference     String?
-  checkoutUrl           String?
-  status                PaymentAttemptStatus @default(created)
-  rawResponseJson       Json?
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime            @updatedAt
-
-  // Relations
-  invoice Invoice @relation(fields: [invoiceId], references: [id])
+  id                   String               @id @default(cuid())
+  invoiceId            String
+  provider             String               @default("mercadopago")
+  providerPreferenceId String?
+  providerPaymentId    String?
+  externalReference    String?
+  checkoutUrl          String?
+  status               PaymentAttemptStatus @default(created)
+  rawResponseJson      Json?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  invoice              Invoice              @relation(fields: [invoiceId], references: [id])
 
   @@map("payment_attempts")
 }
 
 model MercadoPagoWebhookEvent {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   topic          String
   action         String?
   resourceId     String
-  signatureValid Boolean  @default(false)
+  signatureValid Boolean   @default(false)
   payloadJson    Json
-  processed      Boolean  @default(false)
+  processed      Boolean   @default(false)
   processedAt    DateTime?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime  @default(now())
 
   @@map("mercadopago_webhook_events")
-}
-
-// ============================================
-// LEADS
-// ============================================
-
-enum LeadStatus {
-  new
-  contacted
-  qualified
-  closed
-  lost
 }
 
 model Lead {
@@ -220,10 +144,6 @@ model Lead {
   @@map("leads")
 }
 
-// ============================================
-// CONTACT MESSAGES
-// ============================================
-
 enum ContactMessageStatus {
   new
   read
@@ -237,16 +157,12 @@ model ContactMessage {
   email     String
   subject   String
   message   String
-  status    ContactMessageStatus    @default(new)
+  status    ContactMessageStatus  @default(new)
   createdAt DateTime              @default(now())
   updatedAt DateTime              @updatedAt
 
   @@map("contact_messages")
 }
-
-// ============================================
-// CUSTOMERS
-// ============================================
 
 model Customer {
   id           String   @id @default(cuid())
@@ -259,80 +175,51 @@ model Customer {
   notes        String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  // Relations
-  company Company  @relation(fields: [companyId], references: [id])
-  quotes  Quote[]
-  orders  Order[]
+  company      Company  @relation(fields: [companyId], references: [id])
+  orders       Order[]
+  quotes       Quote[]
 
   @@map("customers")
 }
 
-// ============================================
-// ITEMS / INVENTORY
-// ============================================
-
 model Item {
-  id             String   @id @default(cuid())
-  companyId      String
-  sku            String?
-  name           String
-  description    String?
-  unit           String?
-  salePrice      Float
-  costPrice      Float?
-  stockQuantity  Int      @default(0)
-  minimumStock   Int      @default(0)
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  // Relations
-  company            Company            @relation(fields: [companyId], references: [id])
+  id                 String              @id @default(cuid())
+  companyId          String
+  sku                String?
+  name               String
+  description        String?
+  unit               String?
+  salePrice          Float
+  costPrice          Float?
+  stockQuantity      Int                 @default(0)
+  minimumStock       Int                 @default(0)
+  isActive           Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   inventoryMovements InventoryMovement[]
-  quoteItems         QuoteItem[]
+  company            Company             @relation(fields: [companyId], references: [id])
   orderItems         OrderItem[]
+  quoteItems         QuoteItem[]
 
   @@map("items")
 }
 
-enum InventoryMovementType {
-  in
-  out
-  adjustment
-}
-
 model InventoryMovement {
-  id             String                @id @default(cuid())
-  companyId      String
-  itemId         String
-  movementType   InventoryMovementType
-  quantity       Int
-  previousStock  Int
-  newStock       Int
-  referenceType  String?
-  referenceId    String?
-  notes          String?
-  createdAt      DateTime              @default(now())
-
-  // Relations
-  company Company @relation(fields: [companyId], references: [id])
-  item    Item    @relation(fields: [itemId], references: [id])
+  id            String                @id @default(cuid())
+  companyId     String
+  itemId        String
+  movementType  InventoryMovementType
+  quantity      Int
+  previousStock Int
+  newStock      Int
+  referenceType String?
+  referenceId   String?
+  notes         String?
+  createdAt     DateTime              @default(now())
+  company       Company               @relation(fields: [companyId], references: [id])
+  item          Item                  @relation(fields: [itemId], references: [id])
 
   @@map("inventory_movements")
-}
-
-// ============================================
-// QUOTES
-// ============================================
-
-enum QuoteStatus {
-  draft
-  sent
-  follow_up
-  approved
-  rejected
-  expired
 }
 
 model Quote {
@@ -348,13 +235,11 @@ model Quote {
   notes      String?
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-
-  // Relations
-  company    Company     @relation(fields: [companyId], references: [id])
-  customer   Customer    @relation(fields: [customerId], references: [id])
-  items      QuoteItem[]
   followUps  FollowUp[]
   orders     Order[]
+  items      QuoteItem[]
+  company    Company     @relation(fields: [companyId], references: [id])
+  customer   Customer    @relation(fields: [customerId], references: [id])
 
   @@map("quotes")
 }
@@ -369,94 +254,62 @@ model QuoteItem {
   amount      Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
-  item  Item? @relation(fields: [itemId], references: [id])
+  item        Item?    @relation(fields: [itemId], references: [id])
+  quote       Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 
   @@map("quote_items")
 }
 
-// ============================================
-// FOLLOW-UPS
-// ============================================
-
-enum FollowUpResult {
-  no_response
-  interested
-  waiting
-  won
-  lost
-}
-
 model FollowUp {
-  id        String         @id @default(cuid())
+  id        String          @id @default(cuid())
   companyId String
   quoteId   String
   dueDate   DateTime
   notes     String
   result    FollowUpResult?
-  createdAt DateTime       @default(now())
-
-  // Relations
-  company Company @relation(fields: [companyId], references: [id])
-  quote   Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+  company   Company         @relation(fields: [companyId], references: [id])
+  quote     Quote           @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 
   @@map("follow_ups")
 }
 
-// ============================================
-// ORDERS
-// ============================================
-
-enum OrderStatus {
-  pending
-  in_progress
-  partial_delivered
-  delivered
-  cancelled
-}
-
 model Order {
-  id         String      @id @default(cuid())
+  id         String         @id @default(cuid())
   companyId  String
   customerId String
   quoteId    String?
-  orderDate  DateTime    @default(now())
+  orderDate  DateTime       @default(now())
   dueDate    DateTime?
-  status     OrderStatus @default(pending)
+  status     OrderStatus    @default(pending)
   subtotal   Float
   total      Float
   notes      String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-
-  // Relations
-  company  Company       @relation(fields: [companyId], references: [id])
-  customer Customer      @relation(fields: [customerId], references: [id])
-  quote    Quote?        @relation(fields: [quoteId], references: [id])
-  items    OrderItem[]
-  payments OrderPayment[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  items      OrderItem[]
+  payments   OrderPayment[]
+  company    Company        @relation(fields: [companyId], references: [id])
+  customer   Customer       @relation(fields: [customerId], references: [id])
+  quote      Quote?         @relation(fields: [quoteId], references: [id])
 
   @@map("orders")
 }
 
 model OrderItem {
-  id                   String   @id @default(cuid())
-  orderId              String
-  itemId               String?
-  description          String
-  qty                  Int
-  unitPrice            Float
-  amount               Float
-  affectsInventory     Boolean  @default(true)
+  id                    String    @id @default(cuid())
+  orderId               String
+  itemId                String?
+  description           String
+  qty                   Int
+  unitPrice             Float
+  amount                Float
+  affectsInventory      Boolean   @default(true)
   inventoryDiscountedAt DateTime?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-
-  // Relations
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  item  Item? @relation(fields: [itemId], references: [id])
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  item                  Item?     @relation(fields: [itemId], references: [id])
+  order                 Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("order_items")
 }
@@ -470,10 +323,84 @@ model OrderPayment {
   method      String
   notes       String?
   createdAt   DateTime @default(now())
-
-  // Relations
-  company Company @relation(fields: [companyId], references: [id])
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  company     Company  @relation(fields: [companyId], references: [id])
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@map("order_payments")
+}
+
+enum UserRole {
+  owner
+  admin
+}
+
+enum CompanyStatus {
+  active
+  grace_period
+  suspended
+  cancelled
+}
+
+enum SubscriptionStatus {
+  pilot
+  active
+  grace_period
+  suspended
+  cancelled
+}
+
+enum InvoiceStatus {
+  pending
+  paid
+  expired
+  cancelled
+}
+
+enum PaymentAttemptStatus {
+  created
+  redirected
+  approved
+  pending
+  rejected
+  cancelled
+  error
+}
+
+enum LeadStatus {
+  new
+  contacted
+  qualified
+  closed
+  lost
+}
+
+enum InventoryMovementType {
+  in
+  out
+  adjustment
+}
+
+enum QuoteStatus {
+  draft
+  sent
+  follow_up
+  approved
+  rejected
+  expired
+}
+
+enum FollowUpResult {
+  no_response
+  interested
+  waiting
+  won
+  lost
+}
+
+enum OrderStatus {
+  pending
+  in_progress
+  partial_delivered
+  delivered
+  cancelled
 }
