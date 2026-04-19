@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import SuccessMessage from './success-message'
 import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,14 +17,52 @@ import {
   Clock,
   XCircle,
   Download,
-  ExternalLink
+  ExternalLink,
+  AlertCircle
 } from "lucide-react"
 import Link from "next/link"
 
 // Force dynamic rendering to avoid database errors during build
 export const dynamic = 'force-dynamic'
 
-async function getQuoteInvoices() {
+interface Invoice {
+  id: string
+  concept: string
+  amountMxn: number
+  currency: string
+  status: string
+  dueAt: Date
+  createdAt: Date
+  company: any
+  order?: any
+}
+
+async function getAllInvoices(companyId: string): Promise<Invoice[]> {
+  try {
+    const invoices = await prisma.invoice.findMany({
+      where: {
+        companyId,
+      },
+      include: {
+        company: true,
+        order: {
+          include: {
+            customer: true,
+            quote: true,
+            payments: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+    return invoices as Invoice[]
+  } catch (error) {
+    console.error('Error fetching invoices:', error)
+    return []
+  }
+}
+
+export default async function BillingPage() {
   const cookieStore = await cookies()
   const session = cookieStore.get('session')?.value
 
@@ -31,36 +70,16 @@ async function getQuoteInvoices() {
     redirect('/login')
   }
 
-  try {
-    const sessionData = JSON.parse(session)
-    const { companyId } = sessionData
+  const sessionData = JSON.parse(session)
+  const { companyId } = sessionData
 
-    // Get orders that have been converted from quotes (these are the quote invoices)
-    const orders = await prisma.order.findMany({
-      where: { 
-        companyId,
-        quoteId: { not: null } // Only orders that came from quotes
-      },
-      include: { 
-        customer: true,
-        quote: true,
-        payments: true
-      },
-      orderBy: { createdAt: 'desc' }
-    })
-
-    return orders
-  } catch (error) {
-    console.error('Error fetching quote invoices:', error)
-    return []
-  }
-}
-
-export default async function BillingPage() {
-  const orders = await getQuoteInvoices()
+  const invoices = await getAllInvoices(companyId)
 
   return (
     <div className="space-y-6">
+      {/* Success Message */}
+      <SuccessMessage />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -84,7 +103,7 @@ export default async function BillingPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary-400" />
               <Input
-                placeholder="Buscar por cliente o número de pedido..."
+                placeholder="Buscar por cliente, folio o concepto..."
                 className="pl-10"
               />
             </div>
@@ -96,8 +115,8 @@ export default async function BillingPage() {
         </CardContent>
       </Card>
 
-      {/* Quote Invoices List */}
-      {orders.length === 0 ? (
+      {/* Invoices List */}
+      {invoices.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <div className="h-20 w-20 bg-primary-100 rounded-full flex items-center justify-center mb-6">
@@ -105,20 +124,20 @@ export default async function BillingPage() {
             </div>
             <h3 className="text-xl font-semibold mb-2 text-primary-900">No hay facturas</h3>
             <p className="text-primary-500 text-center max-w-md mb-6">
-              Las facturas aparecerán aquí cuando se generen pedidos a partir de cotizaciones.
+              Las facturas aparecerán aquí cuando se generen desde pedidos entregados o cotizaciones convertidas.
             </p>
             <Button variant="outline" className="gap-2" asChild>
-              <Link href="/quotes">
+              <Link href="/orders">
                 <FileText className="h-4 w-4" />
-                Ver cotizaciones
+                Ver pedidos
               </Link>
             </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
-          {orders.map((order: any) => (
-            <QuoteInvoiceCard key={order.id} order={order} />
+          {invoices.map((invoice: any) => (
+            <InvoiceCard key={invoice.id} invoice={invoice} />
           ))}
         </div>
       )}
@@ -126,59 +145,60 @@ export default async function BillingPage() {
   )
 }
 
-function QuoteInvoiceCard({ order }: { order: any }) {
+function InvoiceCard({ invoice }: { invoice: Invoice }) {
   const statusConfig = {
+    paid: { 
+      label: 'Pagada', 
+      variant: 'success' as const,
+      icon: <CheckCircle className="h-3 w-3" />
+    },
     pending: { 
       label: 'Pendiente', 
       variant: 'warning' as const,
       icon: <Clock className="h-3 w-3" />
     },
-    in_progress: { 
-      label: 'En proceso', 
-      variant: 'info' as const,
-      icon: <Clock className="h-3 w-3" />
-    },
-    completed: { 
-      label: 'Completado', 
-      variant: 'success' as const,
-      icon: <CheckCircle className="h-3 w-3" />
-    },
     cancelled: { 
-      label: 'Cancelado', 
+      label: 'Cancelada', 
       variant: 'destructive' as const,
       icon: <XCircle className="h-3 w-3" />
     },
   }
 
-  const config = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
+  const config = statusConfig[invoice.status as keyof typeof statusConfig] || statusConfig.pending
   
-  const totalPaid = order.payments.reduce((sum: number, payment: any) => sum + payment.amount, 0)
-  const remaining = order.total - totalPaid
-  
+  const totalPaid = invoice.order?.payments?.reduce((sum: number, payment: any) => sum + payment.amount, 0) ?? 0
+  const remaining = invoice.amountMxn - totalPaid
+  const isFromOrder = !!invoice.order
+
   return (
     <Card className="hover:shadow-lg transition-all duration-200 group">
       <CardContent className="p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Left: Quote and Customer Info */}
+          {/* Left: Invoice Info */}
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <div className="h-10 w-10 bg-action-100 rounded-lg flex items-center justify-center text-action-600">
                 <FileText className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg text-primary-900">{order.customer.businessName}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-lg text-primary-900">{invoice.concept}</h3>
+                  {isFromOrder && (
+                    <Badge variant="outline" className="gap-1">
+                      <ExternalLink className="h-3 w-3" />
+                      Desde Pedido
+                    </Badge>
+                  )}
+                </div>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant={config.variant} className="gap-1">
                     {config.icon}
                     {config.label}
                   </Badge>
-                  <span className="text-sm text-primary-500">
-                    Pedido #{order.id.slice(0, 8)}
-                  </span>
-                  {order.quote && (
-                    <Badge variant="outline" className="gap-1">
-                      Cotización #{order.quote.folio}
-                    </Badge>
+                  {invoice.order?.customer && (
+                    <span className="text-sm text-primary-500">
+                      {invoice.order.customer.businessName}
+                    </span>
                   )}
                 </div>
               </div>
@@ -187,19 +207,25 @@ function QuoteInvoiceCard({ order }: { order: any }) {
   
           {/* Middle: Date and Totals */}
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 text-sm text-primary-500">
-              <Calendar className="h-4 w-4" />
-              <span>{new Date(order.createdAt).toLocaleDateString('es-MX')}</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2 text-sm text-primary-500">
+                <Calendar className="h-4 w-4" />
+                <span>{new Date(invoice.createdAt).toLocaleDateString('es-MX')}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-primary-500">
+                <Calendar className="h-4 w-4" />
+                <span>Vence: {new Date(invoice.dueAt).toLocaleDateString('es-MX')}</span>
+              </div>
             </div>
             <div className="text-right">
               <div className="flex items-center gap-1 text-2xl font-bold text-primary-900">
                 <DollarSign className="h-5 w-5" />
-                {order.total.toLocaleString('es-MX')}
+                {invoice.amountMxn.toLocaleString('es-MX')}
               </div>
               <div className="text-sm text-primary-500">
                 Pagado: ${totalPaid.toLocaleString('es-MX')}
                 {remaining > 0 && (
-                  <span className="text-warning-600 ml-2">
+                  <span className="text-warning-600 ml-2 block">
                     Pendiente: ${remaining.toLocaleString('es-MX')}
                   </span>
                 )}
@@ -209,19 +235,19 @@ function QuoteInvoiceCard({ order }: { order: any }) {
   
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2" asChild>
-              <Link href={`/orders/${order.id}`}>
-                <FileText className="h-4 w-4" />
-                Ver pedido
-              </Link>
-            </Button>
-            {order.quote && (
-              <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
-                <Link href={`/quotes/${order.quote.id}`}>
+            {invoice.order && (
+              <Button variant="outline" size="sm" className="gap-2" asChild>
+                <Link href={`/orders/${invoice.order.id}`}>
                   <FileText className="h-4 w-4" />
+                  Ver pedido
                 </Link>
               </Button>
             )}
+            <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
+              <Link href={`/invoices/${invoice.id}`}>
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </CardContent>

@@ -59,8 +59,7 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 4. Inicializa la base de datos:
 ```bash
-npm run db:push
-npm run db:seed
+npm run db:setup
 ```
 
 5. Inicia el servidor de desarrollo:
@@ -107,8 +106,14 @@ npm run start             # Inicia servidor de producción
 # Base de datos
 npm run db:generate      # Genera cliente de Prisma
 npm run db:push         # Sincroniza esquema con DB
-npm run db:migrate       # Crea y aplica migraciones
+npm run db:migrate       # Crea/aplica migraciones en desarrollo
+npm run db:migrate:create # Crea migration sin aplicarla
+npm run db:migrate:status # Estado de migraciones
+npm run db:migrate:deploy # Aplica migraciones pendientes (produccion)
+npm run db:reset         # Resetea DB, reaplica migraciones y ejecuta seed
 npm run db:seed         # Puebla DB con datos de prueba
+npm run db:setup         # generate + migrate + seed (flujo recomendado local)
+npm run db:setup:reset   # Alias de reset rapido para pruebas
 npm run db:studio        # Abre Prisma Studio
 
 # Linting

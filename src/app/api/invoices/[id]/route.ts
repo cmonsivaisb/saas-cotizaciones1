@@ -28,8 +28,13 @@ export async function GET(
       },
       include: {
         company: true,
-        subscription: true,
-        paymentAttempts: true,
+        order: {
+          include: {
+            customer: true,
+            quote: true,
+            payments: true,
+          },
+        },
       }
     })
 
@@ -99,8 +104,13 @@ export async function PATCH(
       where: { id },
       include: {
         company: true,
-        subscription: true,
-        paymentAttempts: true,
+        order: {
+          include: {
+            customer: true,
+            quote: true,
+            payments: true,
+          },
+        },
       }
     })
 

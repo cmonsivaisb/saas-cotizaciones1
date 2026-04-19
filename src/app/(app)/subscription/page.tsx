@@ -1,9 +1,10 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
+import { ensureCompanySubscription } from '@/lib/subscription'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import InvoicePayButton from './invoice-pay-button'
 import { 
   CreditCard, 
   Calendar, 
@@ -13,7 +14,6 @@ import {
   FileText,
   ArrowRight,
   Download,
-  ExternalLink
 } from "lucide-react"
 import Link from "next/link"
 
@@ -29,21 +29,8 @@ async function getSubscriptionData() {
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    // Get company with subscription and plan
-    const company = await prisma.company.findUnique({
-      where: { id: companyId },
-      include: {
-        subscription: {
-          include: {
-            plan: true,
-            invoices: {
-              orderBy: { createdAt: 'desc' },
-              take: 10,
-            },
-          },
-        },
-      },
-    })
+    // Ensure every company has an initial SaaS subscription record.
+    const company = await ensureCompanySubscription(companyId)
 
     if (!company) {
       redirect('/login')
@@ -89,7 +76,7 @@ async function getSubscriptionData() {
         graceUntil: subscription.graceUntil,
         suspendedAt: subscription.suspendedAt,
       } : null,
-      invoices: subscription?.invoices || [],
+      invoices: subscription?.subscriptionInvoices || [],
       billingStatus,
       daysUntilDue,
       graceDaysRemaining,
@@ -305,6 +292,7 @@ export default async function SubscriptionPage() {
 
 function SubscriptionStatusBadge({ status }: { status: string }) {
   const statusConfig = {
+    pilot: { label: 'Piloto', variant: 'info' as const },
     active: { label: 'Activo', variant: 'success' as const },
     grace_period: { label: 'Gracia', variant: 'warning' as const },
     suspended: { label: 'Suspendido', variant: 'destructive' as const },
@@ -357,10 +345,7 @@ function InvoiceRow({ invoice }: { invoice: any }) {
         </div>
 
         {invoice.status === 'pending' && (
-          <Button variant="outline" size="sm" className="gap-2">
-            <ExternalLink className="h-4 w-4" />
-            Pagar
-          </Button>
+          <InvoicePayButton invoiceId={invoice.id} />
         )}
 
         {invoice.status === 'paid' && (

@@ -14,11 +14,12 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  Edit,
   Printer,
-  FileText
+  FileText,
+  Edit
 } from "lucide-react"
 import Link from "next/link"
+import OrderActions from "@/components/order-actions"
 
 // Force dynamic rendering to avoid database errors during build
 export const dynamic = 'force-dynamic'
@@ -111,7 +112,7 @@ export default async function OrderDetailPage({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 no-print">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/orders">
@@ -125,17 +126,8 @@ export default async function OrderDetailPage({
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
-            <Printer className="h-4 w-4" />
-            Imprimir
-          </Button>
-          <Button variant="outline" className="gap-2" asChild>
-            <Link href={`/orders/${order.id}/edit`}>
-              <Edit className="h-4 w-4" />
-              Editar
-            </Link>
-          </Button>
+        <div className="flex gap-2 items-center">
+          <OrderActions orderId={order.id} orderStatus={order.status} />
           {order.quote && (
             <Button variant="outline" className="gap-2" asChild>
               <Link href="/billing">

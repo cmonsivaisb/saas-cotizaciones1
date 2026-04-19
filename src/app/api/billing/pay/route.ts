@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
+import { createSubscriptionCheckoutPreference, toJsonSafe } from '@/lib/mercadopago'
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,10 +28,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get invoice with subscription
-    const invoice = await prisma.invoice.findUnique({
+    // Get SaaS subscription invoice
+    const invoice = await prisma.subscriptionInvoice.findUnique({
       where: { id: invoiceId },
       include: {
+        company: true,
         subscription: {
           include: {
             plan: true,
@@ -60,18 +62,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create payment attempt with Mercado Pago
-    // Note: This is a placeholder - actual Mercado Pago integration will be added later
-    const paymentAttempt = await prisma.paymentAttempt.create({
+    const preference = await createSubscriptionCheckoutPreference({
+      requestUrl: request.url,
+      invoiceId: invoice.id,
+      concept: invoice.concept,
+      amountMxn: invoice.amountMxn,
+      payerEmail: invoice.company?.email,
+      metadata: {
+        subscriptionInvoiceId: invoice.id,
+        companyId: invoice.companyId,
+        subscriptionId: invoice.subscriptionId,
+      },
+    })
+
+    // Create payment attempt
+    const paymentAttempt = await prisma.subscriptionPaymentAttempt.create({
       data: {
-        invoiceId,
+        subscriptionInvoiceId: invoiceId,
         provider: 'mercadopago',
-        providerPreferenceId: `pref_${Date.now()}`,
+        providerPreferenceId: preference.preferenceId,
         providerPaymentId: null,
         externalReference: invoice.id,
-        checkoutUrl: `https://checkout.mercadopago.com/${invoice.id}`,
-        status: 'created',
-        rawResponseJson: JSON.stringify({ message: 'Payment preference created' }),
+        checkoutUrl: preference.checkoutUrl,
+        status: 'redirected',
+        rawResponseJson: toJsonSafe(preference.rawResponse),
       },
     })
 

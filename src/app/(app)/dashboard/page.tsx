@@ -84,27 +84,27 @@ async function getDashboardData() {
 
     // Get recent activity for timeline
     const recentActivity = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         'quote' as type,
         q.id,
-        q.created_at as date,
-        c.name as client_name,
+        q."createdAt" as date,
+        c."businessName" as client_name,
         q.total,
-        q.status
+        q.status::text
       FROM quotes q
-      JOIN clients c ON q.client_id = c.id
-      WHERE q.company_id = ${companyId}
+      JOIN customers c ON q."customerId" = c.id
+      WHERE q."companyId" = ${companyId}
       UNION ALL
-      SELECT 
+      SELECT
         'order' as type,
         o.id,
-        o.created_at as date,
-        c.name as client_name,
+        o."createdAt" as date,
+        c."businessName" as client_name,
         o.total,
-        o.status
+        o.status::text
       FROM orders o
-      JOIN clients c ON o.client_id = c.id
-      WHERE o.company_id = ${companyId}
+      JOIN customers c ON o."customerId" = c.id
+      WHERE o."companyId" = ${companyId}
       ORDER BY date DESC
       LIMIT 10
     `

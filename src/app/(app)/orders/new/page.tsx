@@ -57,7 +57,7 @@ export default function NewOrderPage() {
         
         if (quotesRes.ok) {
           const quotesData = await quotesRes.json()
-          setQuotes(quotesData.filter((q: any) => q.status === 'approved'))
+          setQuotes(quotesData.filter((q: any) => q.status === 'approved' || q.status === 'sent' || q.status === 'follow_up'))
         }
       } catch (err) {
         console.error('Error fetching data:', err)
@@ -142,10 +142,12 @@ export default function NewOrderPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...formData,
+          clientId: formData.customerId,
+          quoteId: formData.quoteId,
           items,
           total: calculateTotal(),
-          subtotal: calculateTotal(),
+          notes: formData.notes,
+          deliveryDate: formData.dueDate,
         }),
       })
 
@@ -231,7 +233,7 @@ export default function NewOrderPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Cotización (opcional)</CardTitle>
-                <CardDescription>Selecciona una cotización aprobada para cargar sus items</CardDescription>
+                <CardDescription>Selecciona una cotización para cargar sus items</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">

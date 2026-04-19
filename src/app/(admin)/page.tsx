@@ -39,15 +39,15 @@ async function getAdminDashboardData() {
     prisma.company.count({ where: { status: 'grace_period' } }),
     prisma.company.count({ where: { status: 'suspended' } }),
     prisma.subscription.count(),
-    prisma.invoice.count(),
-    prisma.invoice.count({ where: { status: 'paid' } }),
-    prisma.invoice.count({ where: { status: 'pending' } }),
+    prisma.subscriptionInvoice.count(),
+    prisma.subscriptionInvoice.count({ where: { status: 'paid' } }),
+    prisma.subscriptionInvoice.count({ where: { status: 'pending' } }),
     prisma.lead.count(),
     prisma.lead.count({ where: { status: 'new' } }),
   ])
 
   // Get revenue this month
-  const monthlyRevenue = await prisma.invoice.aggregate({
+  const monthlyRevenue = await prisma.subscriptionInvoice.aggregate({
     where: {
       status: 'paid',
       paidAt: {

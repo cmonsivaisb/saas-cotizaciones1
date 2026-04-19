@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     if (preferenceId && externalReference) {
       // Find and update payment attempt
-      const paymentAttempt = await prisma.paymentAttempt.findFirst({
+      const paymentAttempt = await prisma.subscriptionPaymentAttempt.findFirst({
         where: {
           providerPreferenceId: preferenceId,
           externalReference: externalReference,
@@ -18,24 +18,25 @@ export async function GET(request: NextRequest) {
       })
 
       if (paymentAttempt) {
-        await prisma.paymentAttempt.update({
+        await prisma.subscriptionPaymentAttempt.update({
           where: { id: paymentAttempt.id },
           data: {
             providerPaymentId: paymentId,
             status: 'pending',
-            rawResponseJson: JSON.stringify({
+            rawResponseJson: {
               payment_id: paymentId,
               preference_id: preferenceId,
+              external_reference: externalReference,
               status: 'pending',
-            }),
+            },
           },
         })
       }
     }
 
-    return NextResponse.redirect(new URL('/billing?status=pending', request.url))
+    return NextResponse.redirect(new URL('/subscription?status=pending', request.url))
   } catch (error) {
     console.error('Error processing payment pending:', error)
-    return NextResponse.redirect(new URL('/billing?error=processing_error', request.url))
+    return NextResponse.redirect(new URL('/subscription?error=processing_error', request.url))
   }
 }

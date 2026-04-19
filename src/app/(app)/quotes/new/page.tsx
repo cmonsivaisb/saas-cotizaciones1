@@ -195,7 +195,7 @@ export default function NewQuotePage() {
                     <option value="">Seleccionar cliente...</option>
                     {clients.map((client) => (
                       <option key={client.id} value={client.id}>
-                        {client.name}
+                        {client.businessName}
                       </option>
                     ))}
                   </select>

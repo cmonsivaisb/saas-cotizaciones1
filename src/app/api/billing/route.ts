@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
+import { ensureCompanySubscription } from '@/lib/subscription'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,21 +17,8 @@ export async function GET(request: NextRequest) {
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    // Get company with subscription and plan
-    const company = await prisma.company.findUnique({
-      where: { id: companyId },
-      include: {
-        subscription: {
-          include: {
-            plan: true,
-            invoices: {
-              orderBy: { createdAt: 'desc' },
-              take: 10,
-            },
-          },
-        },
-      },
-    })
+    // Ensure every company has an initial SaaS subscription record.
+    const company = await ensureCompanySubscription(companyId)
 
     if (!company) {
       return NextResponse.json(
@@ -64,6 +51,21 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    if (sessionData.subscriptionStatus !== (subscription?.status || undefined)) {
+      const updatedSession = {
+        ...sessionData,
+        subscriptionStatus: subscription?.status,
+      }
+
+      cookieStore.set('session', JSON.stringify(updatedSession), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      })
+    }
+
     return NextResponse.json({
       company: {
         id: company.id,
@@ -80,7 +82,7 @@ export async function GET(request: NextRequest) {
         graceUntil: subscription.graceUntil,
         suspendedAt: subscription.suspendedAt,
       } : null,
-      invoices: subscription?.invoices || [],
+      invoices: subscription?.subscriptionInvoices || [],
       billingStatus,
       daysUntilDue,
       graceDaysRemaining,

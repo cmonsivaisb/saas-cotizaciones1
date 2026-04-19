@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       },
       include: {
         company: true,
-        invoices: {
+        subscriptionInvoices: {
           where: {
             status: 'pending',
           },
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     for (const subscription of subscriptionsToSuspend) {
       try {
         // Check if there are still pending invoices
-        const hasPendingInvoices = subscription.invoices.some(inv => inv.status === 'pending')
+        const hasPendingInvoices = subscription.subscriptionInvoices.some(inv => inv.status === 'pending')
 
         if (hasPendingInvoices) {
           // Suspend the subscription

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   LayoutDashboard,
@@ -31,10 +31,52 @@ const navigation = [
   { name: 'Configuración', href: '/settings', icon: Settings },
 ]
 
+const allowedWhenSuspended = ['/billing', '/billing/locked', '/subscription', '/settings']
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const syncSubscriptionAccess = async () => {
+      try {
+        const response = await fetch('/api/billing', {
+          method: 'GET',
+          cache: 'no-store',
+        })
+
+        if (!response.ok || cancelled) {
+          return
+        }
+
+        const billingData = await response.json()
+        const isSuspended = billingData?.subscription?.status === 'suspended'
+        const isAllowed = allowedWhenSuspended.some(
+          (route) => pathname === route || pathname.startsWith(route + '/')
+        )
+
+        if (isSuspended && !isAllowed) {
+          router.replace('/billing/locked')
+          return
+        }
+
+        if (!isSuspended && pathname.startsWith('/billing/locked')) {
+          router.replace('/subscription')
+        }
+      } catch (error) {
+        console.error('Error syncing subscription access:', error)
+      }
+    }
+
+    syncSubscriptionAccess()
+
+    return () => {
+      cancelled = true
+    }
+  }, [pathname, router])
 
   const handleLogout = async () => {
     try {

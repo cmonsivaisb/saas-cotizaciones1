@@ -166,9 +166,9 @@ export default async function QuoteDetailsPage({ params }: { params: { id: strin
                 {quote.items.map((item: any) => (
                   <div key={item.id} className="flex justify-between items-start p-4 bg-muted/50 rounded-lg">
                     <div className="flex-1">
-                      <p className="font-medium">{item.product.name}</p>
+                      <p className="font-medium">{item.description || item.item?.name || 'Item'}</p>
                       <p className="text-sm text-muted-foreground">
-                        Cantidad: {item.quantity} × ${item.unitPrice.toLocaleString('es-MX')}
+                        Cantidad: {item.qty} × ${item.unitPrice.toLocaleString('es-MX')}
                       </p>
                     </div>
                     <p className="font-semibold">

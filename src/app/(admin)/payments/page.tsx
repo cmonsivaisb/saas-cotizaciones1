@@ -19,10 +19,10 @@ import {
 export const dynamic = 'force-dynamic'
 
 async function getPayments() {
-  const paymentAttempts = await prisma.paymentAttempt.findMany({
+  const paymentAttempts = await prisma.subscriptionPaymentAttempt.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      invoice: {
+      subscriptionInvoice: {
         include: {
           company: true,
           subscription: {
@@ -114,15 +114,15 @@ function PaymentCard({ payment }: { payment: any }) {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
                   <h3 className="text-lg font-semibold text-primary-900">
-                    {payment.invoice.company.name}
+                    {payment.subscriptionInvoice.company.name}
                   </h3>
                   <PaymentStatusBadge status={payment.status} />
                 </div>
                 <div className="flex items-center gap-2 text-sm text-primary-500">
                   <Building2 className="h-4 w-4" />
-                  <span>{payment.invoice.subscription.plan.name}</span>
+                  <span>{payment.subscriptionInvoice.subscription?.plan?.name || 'Sin plan'}</span>
                   <span className="text-primary-400">•</span>
-                  <span>${payment.invoice.amountMxn.toLocaleString('es-MX')} MXN</span>
+                  <span>${payment.subscriptionInvoice.amountMxn.toLocaleString('es-MX')} MXN</span>
                 </div>
               </div>
             </div>
@@ -153,7 +153,7 @@ function PaymentCard({ payment }: { payment: any }) {
                   <p className="text-xs text-primary-500">Monto</p>
                   <div className="flex items-center gap-1 text-2xl font-bold text-primary-900">
                     <DollarSign className="h-5 w-5" />
-                    {payment.invoice.amountMxn.toLocaleString('es-MX')}
+                    {payment.subscriptionInvoice.amountMxn.toLocaleString('es-MX')}
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-xs text-primary-500">
@@ -200,3 +200,5 @@ function PaymentStatusBadge({ status }: { status: string }) {
     </Badge>
   )
 }
+
+

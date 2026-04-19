@@ -10,7 +10,13 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:create": "prisma migrate dev --create-only",
+    "db:migrate:status": "prisma migrate status",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset --force",
     "db:seed": "tsx prisma/seed.ts",
+    "db:setup": "npm run db:generate && npm run db:migrate && npm run db:seed",
+    "db:setup:reset": "npm run db:reset",
     "db:studio": "prisma studio"
   },
   "prisma": {

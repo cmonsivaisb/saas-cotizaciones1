@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
+import { ensureCompanySubscription } from '@/lib/subscription'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
@@ -25,26 +25,15 @@ async function getBillingData() {
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    // Get company with subscription and plan
-    const company = await prisma.company.findUnique({
-      where: { id: companyId },
-      include: {
-        subscription: {
-          include: {
-            plan: true,
-            invoices: {
-              where: { status: 'pending' },
-              orderBy: { createdAt: 'desc' },
-              take: 1,
-            },
-          },
-        },
-      },
-    })
+    const company = await ensureCompanySubscription(companyId)
 
     if (!company) {
       redirect('/login')
     }
+
+    const pendingInvoice = company.subscription?.subscriptionInvoices?.find(
+      (invoice: any) => invoice.status === 'pending'
+    ) || null
 
     return {
       company: {
@@ -52,7 +41,7 @@ async function getBillingData() {
         name: company.name,
       },
       subscription: company.subscription,
-      pendingInvoice: company.subscription?.invoices[0] || null,
+      pendingInvoice,
     }
   } catch (error) {
     console.error('Error fetching billing data:', error)
@@ -117,7 +106,7 @@ export default async function BillingLockedPage() {
               </div>
 
               <Button className="w-full gap-2" size="lg" asChild>
-                <Link href="/billing">
+                <Link href="/subscription">
                   <CreditCard className="h-5 w-5" />
                   Pagar factura ahora
                   <ArrowRight className="h-5 w-5" />

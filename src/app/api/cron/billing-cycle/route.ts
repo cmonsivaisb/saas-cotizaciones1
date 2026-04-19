@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createSubscriptionCheckoutPreference, toJsonSafe } from '@/lib/mercadopago'
 
 export async function GET(request: NextRequest) {
   try {
     // Verify cron secret (optional but recommended)
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
-    
+
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
     for (const subscription of subscriptionsToBill) {
       try {
         // Create new invoice
-        const invoice = await prisma.invoice.create({
+        const invoice = await prisma.subscriptionInvoice.create({
           data: {
             companyId: subscription.companyId,
             subscriptionId: subscription.id,
@@ -48,17 +49,43 @@ export async function GET(request: NextRequest) {
           },
         })
 
-        // Create payment attempt (placeholder for Mercado Pago)
-        const paymentAttempt = await prisma.paymentAttempt.create({
-          data: {
+        let providerPreferenceId: string | null = null
+        let checkoutUrl: string | null = null
+        let paymentAttemptStatus: 'redirected' | 'error' = 'error'
+        let paymentRawResponse: any = { message: 'preference_not_created' }
+
+        try {
+          const preference = await createSubscriptionCheckoutPreference({
+            requestUrl: request.url,
             invoiceId: invoice.id,
+            concept: invoice.concept,
+            amountMxn: invoice.amountMxn,
+            payerEmail: subscription.company.email,
+            metadata: {
+              subscriptionInvoiceId: invoice.id,
+              companyId: subscription.companyId,
+              subscriptionId: subscription.id,
+            },
+          })
+
+          providerPreferenceId = preference.preferenceId
+          checkoutUrl = preference.checkoutUrl
+          paymentAttemptStatus = 'redirected'
+          paymentRawResponse = preference.rawResponse
+        } catch (preferenceError) {
+          console.error(`Error creating Mercado Pago preference for invoice ${invoice.id}:`, preferenceError)
+        }
+
+        await prisma.subscriptionPaymentAttempt.create({
+          data: {
+            subscriptionInvoiceId: invoice.id,
             provider: 'mercadopago',
-            providerPreferenceId: `pref_${Date.now()}_${subscription.id}`,
+            providerPreferenceId,
             providerPaymentId: null,
             externalReference: invoice.id,
-            checkoutUrl: `https://checkout.mercadopago.com/${invoice.id}`,
-            status: 'created',
-            rawResponseJson: JSON.stringify({ message: 'Payment preference created' }),
+            checkoutUrl,
+            status: paymentAttemptStatus,
+            rawResponseJson: toJsonSafe(paymentRawResponse),
           },
         })
 
@@ -70,6 +97,13 @@ export async function GET(request: NextRequest) {
           data: {
             status: 'grace_period',
             graceUntil,
+          },
+        })
+
+        await prisma.company.update({
+          where: { id: subscription.companyId },
+          data: {
+            status: 'grace_period',
           },
         })
 

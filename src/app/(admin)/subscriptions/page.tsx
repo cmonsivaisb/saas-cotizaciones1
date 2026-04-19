@@ -18,20 +18,79 @@ import {
 // Force dynamic rendering to avoid database errors during build
 export const dynamic = 'force-dynamic'
 
+async function getLatestInvoicesBySubscriptionCompat(subscriptionIds: string[]) {
+  const latestBySubscription = new Map<string, any[]>()
+
+  if (subscriptionIds.length === 0) {
+    return latestBySubscription
+  }
+
+  const prismaAny = prisma as any
+
+  if (prismaAny.subscriptionInvoice?.findMany) {
+    try {
+      const invoices = await prismaAny.subscriptionInvoice.findMany({
+        where: {
+          subscriptionId: {
+            in: subscriptionIds,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      for (const invoice of invoices) {
+        if (!latestBySubscription.has(invoice.subscriptionId)) {
+          latestBySubscription.set(invoice.subscriptionId, [invoice])
+        }
+      }
+
+      return latestBySubscription
+    } catch (error) {
+      console.warn('subscriptionInvoice.findMany failed in admin subscriptions:', error)
+    }
+  }
+
+  if (prismaAny.invoice?.findMany) {
+    try {
+      const invoices = await prismaAny.invoice.findMany({
+        where: {
+          subscriptionId: {
+            in: subscriptionIds,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      for (const invoice of invoices) {
+        if (!latestBySubscription.has(invoice.subscriptionId)) {
+          latestBySubscription.set(invoice.subscriptionId, [invoice])
+        }
+      }
+    } catch (error) {
+      console.warn('legacy invoice.findMany failed in admin subscriptions:', error)
+    }
+  }
+
+  return latestBySubscription
+}
+
 async function getSubscriptions() {
   const subscriptions = await prisma.subscription.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
       plan: true,
       company: true,
-      invoices: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-      },
     },
   })
 
-  return subscriptions
+  const latestInvoicesBySubscription = await getLatestInvoicesBySubscriptionCompat(
+    subscriptions.map((subscription) => subscription.id)
+  )
+
+  return subscriptions.map((subscription) => ({
+    ...subscription,
+    subscriptionInvoices: latestInvoicesBySubscription.get(subscription.id) || [],
+  }))
 }
 
 export default async function AdminSubscriptionsPage() {
@@ -206,27 +265,27 @@ function SubscriptionCard({ subscription }: { subscription: any }) {
             </Card>
 
             {/* Latest Invoice */}
-            {subscription.invoices.length > 0 && (
+            {subscription.subscriptionInvoices.length > 0 && (
               <Card className="bg-primary-50">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs text-primary-500">Última factura</p>
-                    <Badge variant={subscription.invoices[0].status === 'paid' ? 'success' : 'warning'}>
-                      {subscription.invoices[0].status === 'paid' ? 'Pagada' : 'Pendiente'}
+                    <Badge variant={subscription.subscriptionInvoices[0].status === 'paid' ? 'success' : 'warning'}>
+                      {subscription.subscriptionInvoices[0].status === 'paid' ? 'Pagada' : 'Pendiente'}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-primary-900">
-                        {subscription.invoices[0].concept}
+                        {subscription.subscriptionInvoices[0].concept}
                       </p>
                       <p className="text-xs text-primary-500">
-                        {new Date(subscription.invoices[0].createdAt).toLocaleDateString('es-MX')}
+                        {new Date(subscription.subscriptionInvoices[0].createdAt).toLocaleDateString('es-MX')}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-primary-900">
-                        ${subscription.invoices[0].amountMxn.toLocaleString('es-MX')}
+                        ${subscription.subscriptionInvoices[0].amountMxn.toLocaleString('es-MX')}
                       </p>
                     </div>
                   </div>
@@ -256,3 +315,4 @@ function SubscriptionStatusBadge({ status }: { status: string }) {
     </Badge>
   )
 }
+

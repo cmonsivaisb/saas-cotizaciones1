@@ -36,6 +36,7 @@ model Company {
   followUps          FollowUp[]
   inventoryMovements InventoryMovement[]
   invoices           Invoice[]
+  subscriptionInvoices SubscriptionInvoice[]
   items              Item[]
   orderPayments      OrderPayment[]
   orders             Order[]
@@ -71,7 +72,7 @@ model Subscription {
   suspendedAt        DateTime?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
-  invoices           Invoice[]
+  subscriptionInvoices SubscriptionInvoice[]
   company            Company            @relation(fields: [companyId], references: [id])
   plan               Plan               @relation(fields: [planId], references: [id])
 
@@ -79,27 +80,45 @@ model Subscription {
 }
 
 model Invoice {
-  id              String           @id @default(cuid())
-  companyId       String
-  subscriptionId  String
-  concept         String
-  amountMxn       Float
-  currency        String           @default("MXN")
-  status          InvoiceStatus    @default(pending)
-  dueAt           DateTime
-  paidAt          DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  company         Company          @relation(fields: [companyId], references: [id])
-  subscription    Subscription     @relation(fields: [subscriptionId], references: [id])
-  paymentAttempts PaymentAttempt[]
+  id         String        @id @default(cuid())
+  companyId  String
+  orderId    String?
+  concept    String
+  amountMxn  Float
+  currency   String        @default("MXN")
+  status     InvoiceStatus @default(pending)
+  dueAt      DateTime
+  paidAt     DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  company    Company       @relation(fields: [companyId], references: [id])
+  order      Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@map("invoices")
 }
 
-model PaymentAttempt {
+model SubscriptionInvoice {
+  id              String                     @id @default(cuid())
+  companyId       String
+  subscriptionId  String
+  concept         String
+  amountMxn       Float
+  currency        String                     @default("MXN")
+  status          InvoiceStatus              @default(pending)
+  dueAt           DateTime
+  paidAt          DateTime?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  company         Company                    @relation(fields: [companyId], references: [id])
+  subscription    Subscription               @relation(fields: [subscriptionId], references: [id])
+  paymentAttempts SubscriptionPaymentAttempt[]
+
+  @@map("subscription_invoices")
+}
+
+model SubscriptionPaymentAttempt {
   id                   String               @id @default(cuid())
-  invoiceId            String
+  subscriptionInvoiceId String
   provider             String               @default("mercadopago")
   providerPreferenceId String?
   providerPaymentId    String?
@@ -109,9 +128,9 @@ model PaymentAttempt {
   rawResponseJson      Json?
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
-  invoice              Invoice              @relation(fields: [invoiceId], references: [id])
+  subscriptionInvoice  SubscriptionInvoice  @relation(fields: [subscriptionInvoiceId], references: [id])
 
-  @@map("payment_attempts")
+  @@map("subscription_payment_attempts")
 }
 
 model MercadoPagoWebhookEvent {
@@ -287,6 +306,7 @@ model Order {
   notes      String?
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
+  invoices   Invoice[]
   items      OrderItem[]
   payments   OrderPayment[]
   company    Company        @relation(fields: [companyId], references: [id])

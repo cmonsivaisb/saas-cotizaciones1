@@ -19,7 +19,7 @@ import {
 export const dynamic = 'force-dynamic'
 
 async function getInvoices() {
-  const invoices = await prisma.invoice.findMany({
+  const invoices = await prisma.subscriptionInvoice.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
       company: true,
@@ -117,7 +117,7 @@ function InvoiceCard({ invoice }: { invoice: any }) {
                   <Building2 className="h-4 w-4" />
                   <span>{invoice.company.name}</span>
                   <span className="text-primary-400">•</span>
-                  <span>{invoice.subscription.plan.name}</span>
+                  <span>{invoice.subscription?.plan?.name || 'Sin plan'}</span>
                 </div>
               </div>
             </div>
@@ -227,3 +227,4 @@ function PaymentStatusBadge({ status }: { status: string }) {
     </Badge>
   )
 }
+

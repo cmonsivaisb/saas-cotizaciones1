@@ -140,8 +140,13 @@ function OrderCard({ order }: { order: any }) {
       variant: 'info' as const,
       icon: <Truck className="h-3 w-3" />
     },
-    completed: { 
-      label: 'Completado', 
+    partial_delivered: { 
+      label: 'Entrega parcial', 
+      variant: 'info' as const,
+      icon: <Truck className="h-3 w-3" />
+    },
+    delivered: { 
+      label: 'Entregado', 
       variant: 'success' as const,
       icon: <CheckCircle className="h-3 w-3" />
     },
