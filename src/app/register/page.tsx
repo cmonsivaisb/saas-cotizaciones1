@@ -18,7 +18,7 @@ export default function RegisterPage() {
           </Link>
           <h1 className="text-2xl font-bold mb-2">Crea tu cuenta</h1>
           <p className="text-muted-foreground">
-            Comienza tu prueba gratuita de 30 días. Sin tarjeta de crédito.
+            Comienza tu prueba gratuita de 15 días. Sin tarjeta de crédito.
           </p>
         </div>
 
@@ -151,11 +151,11 @@ export default function RegisterPage() {
                 />
                 <label htmlFor="terms" className="text-sm text-muted-foreground">
                   Acepto los{" "}
-                  <Link href="#" className="text-primary hover:underline">
+                  <Link href="/terms" className="text-primary hover:underline">
                     términos y condiciones
                   </Link>{" "}
                   y la{" "}
-                  <Link href="#" className="text-primary hover:underline">
+                  <Link href="/privacy" className="text-primary hover:underline">
                     política de privacidad
                   </Link>
                 </label>

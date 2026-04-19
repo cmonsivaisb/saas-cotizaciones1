@@ -19,6 +19,12 @@ export default function PricingPage() {
             <Button variant="ghost" size="sm" asChild>
               <a href="/">Inicio</a>
             </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/terms">Términos</a>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/privacy">Privacidad</a>
+            </Button>
             <Button size="sm" asChild>
               <a href="/register">Comenzar gratis</a>
             </Button>
@@ -37,52 +43,23 @@ export default function PricingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div className="max-w-md mx-auto mb-16">
             <PricingCard
-              name="Básico"
-              price="$499"
+              name="CotizaNet"
+              price="$500"
               period="mes"
-              description="Para negocios que comienzan"
+              description="Todo lo que necesitas para tu negocio"
               features={[
-                "Hasta 50 clientes",
-                "Hasta 100 productos",
+                "Clientes ilimitados",
+                "Productos ilimitados",
                 "Cotizaciones ilimitadas",
                 "Pedidos ilimitados",
-                "Soporte por email",
-              ]}
-              cta="Comenzar gratis"
-              href="/register"
-            />
-            <PricingCard
-              name="Profesional"
-              price="$999"
-              period="mes"
-              description="Para negocios en crecimiento"
-              features={[
-                "Hasta 200 clientes",
-                "Hasta 500 productos",
-                "Todo lo de Básico",
-                "Reportes básicos",
+                "Reportes completos",
                 "Soporte prioritario",
               ]}
               cta="Comenzar gratis"
               href="/register"
               popular
-            />
-            <PricingCard
-              name="Empresarial"
-              price="$1,999"
-              period="mes"
-              description="Para negocios establecidos"
-              features={[
-                "Clientes ilimitados",
-                "Productos ilimitados",
-                "Todo lo de Profesional",
-                "Reportes avanzados",
-                "Soporte dedicado",
-              ]}
-              cta="Comenzar gratis"
-              href="/register"
             />
           </div>
 
@@ -94,11 +71,7 @@ export default function PricingPage() {
             <div className="space-y-6">
               <FAQItem
                 question="¿Hay un periodo de prueba?"
-                answer="Sí, ofrecemos una prueba gratuita de 30 días. No requerimos tarjeta de crédito y puedes cancelar en cualquier momento."
-              />
-              <FAQItem
-                question="¿Puedo cambiar de plan?"
-                answer="Por supuesto. Puedes actualizar o degradar tu plan en cualquier momento desde tu panel de administración."
+                answer="Sí, ofrecemos una prueba gratuita de 15 días. No requerimos tarjeta de crédito y puedes cancelar en cualquier momento."
               />
               <FAQItem
                 question="¿Qué métodos de pago aceptan?"
@@ -110,7 +83,7 @@ export default function PricingPage() {
               />
               <FAQItem
                 question="¿Ofrecen soporte técnico?"
-                answer="Sí, ofrecemos soporte por email en todos los planes. Los planes Profesional y Empresarial incluyen soporte prioritario y dedicado respectivamente."
+                answer="Sí, ofrecemos soporte prioritario por email para todos nuestros usuarios."
               />
               <FAQItem
                 question="¿Puedo exportar mis datos?"
@@ -130,7 +103,7 @@ export default function PricingPage() {
             </p>
             <Link href="/register">
               <Button size="lg" className="text-base px-8">
-                Comienza tu prueba gratuita
+                Comienza tu prueba gratuita de 15 días
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>

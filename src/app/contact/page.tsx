@@ -1,10 +1,56 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, Mail, Phone, MapPin, Send } from "lucide-react"
+import { FileText, Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react"
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitError('')
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setSubmitSuccess(true)
+        setFormData({ name: '', email: '', subject: '', message: '' })
+      } else {
+        setSubmitError(data.error || 'Error al enviar el mensaje')
+      }
+    } catch (error) {
+      setSubmitError('Error de conexión. Por favor intenta nuevamente.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -19,6 +65,12 @@ export default function ContactPage() {
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild>
               <a href="/">Inicio</a>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/terms">Términos</a>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/privacy">Privacidad</a>
             </Button>
             <Button size="sm" asChild>
               <a href="/register">Comenzar gratis</a>
@@ -46,46 +98,84 @@ export default function ContactPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nombre</Label>
-                    <Input
-                      id="name"
-                      placeholder="Tu nombre"
-                      required
-                    />
+                {submitSuccess ? (
+                  <div className="text-center py-8">
+                    <CheckCircle className="h-16 w-16 text-success-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">¡Mensaje enviado!</h3>
+                    <p className="text-muted-foreground">
+                      Gracias por contactarnos. Te responderemos lo antes posible.
+                    </p>
+                    <Button
+                      variant="outline"
+                      className="mt-6"
+                      onClick={() => setSubmitSuccess(false)}
+                    >
+                      Enviar otro mensaje
+                    </Button>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Correo electrónico</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="tu@empresa.com"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="subject">Asunto</Label>
-                    <Input
-                      id="subject"
-                      placeholder="¿En qué podemos ayudarte?"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Mensaje</Label>
-                    <textarea
-                      id="message"
-                      className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                      placeholder="Escribe tu mensaje aquí..."
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full">
-                    <Send className="mr-2 h-4 w-4" />
-                    Enviar mensaje
-                  </Button>
-                </form>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    {submitError && (
+                      <div className="bg-danger-50 border border-danger-200 text-danger-900 px-4 py-3 rounded-md">
+                        {submitError}
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nombre</Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        placeholder="Tu nombre"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Correo electrónico</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="tu@empresa.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Asunto</Label>
+                      <Input
+                        id="subject"
+                        name="subject"
+                        placeholder="¿En qué podemos ayudarte?"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Mensaje</Label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                        placeholder="Escribe tu mensaje aquí..."
+                        value={formData.message}
+                        onChange={handleChange}
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      <Send className="mr-2 h-4 w-4" />
+                      {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
+                    </Button>
+                  </form>
+                )}
               </CardContent>
             </Card>
 
@@ -100,14 +190,7 @@ export default function ContactPage() {
                     <Mail className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
-                      <p className="text-muted-foreground">contacto@cotizanet.com</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Phone className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Teléfono</h3>
-                      <p className="text-muted-foreground">+52 55 1234 5678</p>
+                      <p className="text-muted-foreground">quickbotstudios@gmail.com</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -115,7 +198,7 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-semibold mb-1">Ubicación</h3>
                       <p className="text-muted-foreground">
-                        Ciudad de México, México
+                        Saltillo Coahuila Mexico
                       </p>
                     </div>
                   </div>

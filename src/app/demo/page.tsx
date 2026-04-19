@@ -20,6 +20,12 @@ export default function DemoPage() {
             <Button variant="ghost" size="sm" asChild>
               <a href="/">Inicio</a>
             </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/terms">Términos</a>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/privacy">Privacidad</a>
+            </Button>
             <Button size="sm" asChild>
               <a href="/register">Comenzar gratis</a>
             </Button>

@@ -77,7 +77,7 @@ export default async function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
               <Button size="lg" className="text-base px-8">
-                Prueba gratis por 30 días
+                Prueba gratis por 15 días
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -255,52 +255,23 @@ export default async function HomePage() {
           <p className="text-muted-foreground text-center mb-12">
             Sin costos ocultos, sin contratos forzosos. Cancela cuando quieras.
           </p>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="max-w-md mx-auto">
             <PricingCard
-              name="Básico"
-              price="$499"
+              name="CotizaNet"
+              price="$500"
               period="mes"
-              description="Para negocios que comienzan"
+              description="Todo lo que necesitas para tu negocio"
               features={[
-                "Hasta 50 clientes",
-                "Hasta 100 productos",
+                "Clientes ilimitados",
+                "Productos ilimitados",
                 "Cotizaciones ilimitadas",
                 "Pedidos ilimitados",
-                "Soporte por email",
-              ]}
-              cta="Comenzar gratis"
-              href="/register"
-            />
-            <PricingCard
-              name="Profesional"
-              price="$999"
-              period="mes"
-              description="Para negocios en crecimiento"
-              features={[
-                "Hasta 200 clientes",
-                "Hasta 500 productos",
-                "Todo lo de Básico",
-                "Reportes básicos",
+                "Reportes completos",
                 "Soporte prioritario",
               ]}
               cta="Comenzar gratis"
               href="/register"
               popular
-            />
-            <PricingCard
-              name="Empresarial"
-              price="$1,999"
-              period="mes"
-              description="Para negocios establecidos"
-              features={[
-                "Clientes ilimitados",
-                "Productos ilimitados",
-                "Todo lo de Profesional",
-                "Reportes avanzados",
-                "Soporte dedicado",
-              ]}
-              cta="Comenzar gratis"
-              href="/register"
             />
           </div>
         </div>
@@ -318,7 +289,7 @@ export default async function HomePage() {
           </p>
           <Link href="/register">
             <Button size="lg" className="text-base px-8">
-              Comienza tu prueba gratuita de 30 días
+              Comienza tu prueba gratuita de 15 días
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
@@ -356,14 +327,14 @@ export default async function HomePage() {
               <ul className="space-y-2 text-sm">
                 <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contacto</Link></li>
                 <li><Link href="#" className="text-muted-foreground hover:text-primary">Blog</Link></li>
-                <li><Link href="#" className="text-muted-foreground hover:text-primary">Términos</Link></li>
+                <li><Link href="/terms" className="text-muted-foreground hover:text-primary">Términos</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Legal</h3>
               <ul className="space-y-2 text-sm">
-                <li><Link href="#" className="text-muted-foreground hover:text-primary">Privacidad</Link></li>
-                <li><Link href="#" className="text-muted-foreground hover:text-primary">Términos</Link></li>
+                <li><Link href="/privacy" className="text-muted-foreground hover:text-primary">Privacidad</Link></li>
+                <li><Link href="/terms" className="text-muted-foreground hover:text-primary">Términos</Link></li>
                 <li><Link href="#" className="text-muted-foreground hover:text-primary">Cookies</Link></li>
               </ul>
             </div>

@@ -9,6 +9,8 @@ const publicRoutes = [
   '/contact',
   '/login',
   '/register',
+  '/terms',
+  '/privacy',
   '/api/leads',
   '/api/auth/login',
   '/api/auth/register',
