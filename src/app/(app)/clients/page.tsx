@@ -4,13 +4,13 @@ import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { 
-  Users, 
-  Plus, 
-  Search, 
-  Mail, 
-  Phone, 
-  MapPin, 
+import {
+  Users,
+  Plus,
+  Search,
+  Mail,
+  Phone,
+  MapPin,
   FileText,
   Package,
   DollarSign,
@@ -20,6 +20,9 @@ import {
   ArrowRight
 } from "lucide-react"
 import Link from "next/link"
+
+// Force dynamic rendering to avoid database errors during build
+export const dynamic = 'force-dynamic'
 
 async function getClients() {
   const cookieStore = await cookies()
@@ -33,7 +36,7 @@ async function getClients() {
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const clients = await prisma.client.findMany({
+    const clients = await prisma.customer.findMany({
       where: { companyId },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -41,7 +44,6 @@ async function getClients() {
           select: {
             quotes: true,
             orders: true,
-            invoices: true,
           }
         }
       }

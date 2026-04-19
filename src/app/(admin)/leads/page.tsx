@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Users, 
-  Plus, 
-  Search, 
-  Mail, 
-  Phone, 
+import {
+  Users,
+  Plus,
+  Search,
+  Mail,
+  Phone,
   MapPin,
   Calendar,
   Building2,
@@ -19,6 +19,9 @@ import {
   Eye
 } from "lucide-react"
 import Link from "next/link"
+
+// Force dynamic rendering to avoid database errors during build
+export const dynamic = 'force-dynamic'
 
 async function getLeads() {
   const leads = await prisma.lead.findMany({

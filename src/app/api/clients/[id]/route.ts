@@ -4,9 +4,10 @@ import { cookies } from 'next/headers'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -20,9 +21,9 @@ export async function GET(
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const client = await prisma.client.findFirst({
+    const customer = await prisma.customer.findFirst({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
       include: {
@@ -30,22 +31,21 @@ export async function GET(
           select: {
             quotes: true,
             orders: true,
-            invoices: true,
           }
         }
       }
     })
 
-    if (!client) {
+    if (!customer) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { error: 'Customer not found' },
         { status: 404 }
       )
     }
 
-    return NextResponse.json(client)
+    return NextResponse.json(customer)
   } catch (error) {
-    console.error('Error fetching client:', error)
+    console.error('Error fetching customer:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -55,9 +55,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -81,35 +82,35 @@ export async function PATCH(
       )
     }
 
-    const client = await prisma.client.updateMany({
+    const customer = await prisma.customer.updateMany({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
       data: {
-        name,
+        businessName: name,
+        contactName: name,
         email,
         phone,
-        address,
-        rfc,
-        taxId,
+        source: address,
+        notes: rfc,
       },
     })
 
-    if (client.count === 0) {
+    if (customer.count === 0) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { error: 'Customer not found' },
         { status: 404 }
       )
     }
 
-    const updatedClient = await prisma.client.findUnique({
-      where: { id: params.id },
+    const updatedCustomer = await prisma.customer.findUnique({
+      where: { id },
     })
 
-    return NextResponse.json(updatedClient)
+    return NextResponse.json(updatedCustomer)
   } catch (error) {
-    console.error('Error updating client:', error)
+    console.error('Error updating customer:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -119,9 +120,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -135,23 +137,23 @@ export async function DELETE(
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const client = await prisma.client.deleteMany({
+    const customer = await prisma.customer.deleteMany({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
     })
 
-    if (client.count === 0) {
+    if (customer.count === 0) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { error: 'Customer not found' },
         { status: 404 }
       )
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting client:', error)
+    console.error('Error deleting customer:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -5,20 +5,21 @@ import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { 
-  LayoutDashboard, 
-  Building2, 
-  CreditCard, 
-  FileText, 
-  DollarSign, 
-  Users,
-  LogOut,
-  Menu,
-  X,
-  ChevronRight,
-  Bell,
-  Search,
-  Shield
-} from "lucide-react"
+   LayoutDashboard, 
+   Building2, 
+   CreditCard, 
+   FileText, 
+   DollarSign, 
+   Users,
+   LogOut,
+   Menu,
+   X,
+   ChevronRight,
+   Bell,
+   Search,
+   Shield,
+   Mail
+ } from "lucide-react"
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -27,6 +28,7 @@ const navigation = [
   { name: 'Facturas', href: '/admin/invoices', icon: FileText },
   { name: 'Pagos', href: '/admin/payments', icon: DollarSign },
   { name: 'Leads', href: '/admin/leads', icon: Users },
+  { name: 'Mensajes', href: '/admin/contact-messages', icon: Mail },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

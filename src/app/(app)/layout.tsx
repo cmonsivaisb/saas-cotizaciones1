@@ -4,19 +4,20 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { 
-  LayoutDashboard, 
-  Users, 
-  FileText, 
-  Package, 
-  DollarSign, 
+import {
+  LayoutDashboard,
+  Users,
+  FileText,
+  Package,
+  DollarSign,
   Settings,
   LogOut,
   Menu,
   X,
   ChevronRight,
   Bell,
-  Search
+  Search,
+  CreditCard
 } from "lucide-react"
 
 const navigation = [
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Cotizaciones', href: '/quotes', icon: FileText },
   { name: 'Pedidos', href: '/orders', icon: Package },
   { name: 'Facturación', href: '/billing', icon: DollarSign },
+  { name: 'Suscripción', href: '/subscription', icon: CreditCard },
   { name: 'Inventario', href: '/inventory', icon: Package },
   { name: 'Configuración', href: '/settings', icon: Settings },
 ]

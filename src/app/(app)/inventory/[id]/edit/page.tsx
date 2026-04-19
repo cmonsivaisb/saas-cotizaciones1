@@ -35,9 +35,9 @@ export default function EditProductPage() {
         setFormData({
           name: data.name || "",
           description: data.description || "",
-          price: data.price?.toString() || "",
+          price: data.salePrice?.toString() || "",
           sku: data.sku || "",
-          stock: data.stock?.toString() || "",
+          stock: data.stockQuantity?.toString() || "",
         })
       } catch (err) {
         setError("Error al cargar el producto")

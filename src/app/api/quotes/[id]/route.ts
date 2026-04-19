@@ -4,9 +4,10 @@ import { cookies } from 'next/headers'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -22,14 +23,14 @@ export async function GET(
 
     const quote = await prisma.quote.findFirst({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
       include: {
-        client: true,
+        customer: true,
         items: {
           include: {
-            product: true,
+            item: true,
           }
         }
       }
@@ -54,9 +55,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -71,24 +73,24 @@ export async function PATCH(
     const { companyId } = sessionData
 
     const body = await request.json()
-    const { clientId, items, total, notes, validUntil, status } = body
+    const { customerId, items, total, notes, validUntil, status } = body
 
     // Delete existing items
     await prisma.quoteItem.deleteMany({
-      where: { quoteId: params.id }
+      where: { quoteId: id }
     })
 
     // Update quote
     const quote = await prisma.quote.updateMany({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
       data: {
-        clientId,
+        customerId,
         total,
         notes,
-        validUntil: validUntil ? new Date(validUntil) : null,
+        validUntil: validUntil ? new Date(validUntil) : undefined,
         status: status || 'draft',
       },
     })
@@ -104,22 +106,23 @@ export async function PATCH(
     if (items && items.length > 0) {
       await prisma.quoteItem.createMany({
         data: items.map((item: any) => ({
-          quoteId: params.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
-          total: item.total,
+          quoteId: id,
+          itemId: item.productId || null,
+          description: item.productName || item.description || "",
+          qty: item.quantity,
+          unitPrice: item.price,
+          amount: item.total,
         }))
       })
     }
 
     const updatedQuote = await prisma.quote.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
-        client: true,
+        customer: true,
         items: {
           include: {
-            product: true,
+            item: true,
           }
         }
       }
@@ -137,9 +140,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -155,7 +159,7 @@ export async function DELETE(
 
     const quote = await prisma.quote.deleteMany({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
     })

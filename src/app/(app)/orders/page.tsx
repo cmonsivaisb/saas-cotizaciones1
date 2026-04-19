@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Package, 
-  Plus, 
-  Search, 
+import {
+  Package,
+  Plus,
+  Search,
   Calendar,
   DollarSign,
   User,
@@ -17,9 +17,13 @@ import {
   Truck,
   CheckCircle,
   Clock,
-  XCircle
+  XCircle,
+  FileText
 } from "lucide-react"
 import Link from "next/link"
+
+// Force dynamic rendering to avoid database errors during build
+export const dynamic = 'force-dynamic'
 
 async function getOrders() {
   const cookieStore = await cookies()
@@ -35,7 +39,7 @@ async function getOrders() {
 
     const orders = await prisma.order.findMany({
       where: { companyId },
-      include: { client: true },
+      include: { customer: true },
       orderBy: { createdAt: 'desc' }
     })
 
@@ -59,12 +63,20 @@ export default async function OrdersPage() {
             Gestiona los pedidos de tus clientes
           </p>
         </div>
-        <Button asChild className="gap-2">
-          <Link href="/orders/new">
-            <Plus className="h-4 w-4" />
-            Nuevo pedido
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2" asChild>
+            <Link href="/billing">
+              <FileText className="h-4 w-4" />
+              Ver facturación
+            </Link>
+          </Button>
+          <Button asChild className="gap-2">
+            <Link href="/orders/new">
+              <Plus className="h-4 w-4" />
+              Nuevo pedido
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -153,7 +165,7 @@ function OrderCard({ order }: { order: any }) {
                 <User className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-lg text-primary-900">{order.client.name}</h3>
+                <h3 className="font-semibold text-lg text-primary-900">{order.customer.businessName}</h3>
                 <div className="flex items-center gap-2 mt-1">
                   <Badge variant={config.variant} className="gap-1">
                     {config.icon}

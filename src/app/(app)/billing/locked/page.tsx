@@ -170,8 +170,8 @@ export default async function BillingLockedPage() {
                 <p className="text-sm text-primary-600">
                   Si tienes problemas con el pago o preguntas sobre tu cuenta, 
                   contáctanos a{' '}
-                  <a href="mailto:soporte@cotizanet.com" className="text-action-600 hover:underline">
-                    soporte@cotizanet.com
+                  <a href="mailto:quickbotstudios@gmail.com" className="text-action-600 hover:underline">
+                    quickbotstudios@gmail.com
                   </a>
                 </p>
               </div>

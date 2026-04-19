@@ -4,9 +4,10 @@ import { cookies } from 'next/headers'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -22,16 +23,13 @@ export async function GET(
 
     const invoice = await prisma.invoice.findFirst({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
       include: {
-        client: true,
-        items: {
-          include: {
-            product: true,
-          }
-        }
+        company: true,
+        subscription: true,
+        paymentAttempts: true,
       }
     })
 
@@ -54,9 +52,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -71,25 +70,21 @@ export async function PATCH(
     const { companyId } = sessionData
 
     const body = await request.json()
-    const { clientId, items, total, notes, dueDate, status } = body
-
-    // Delete existing items
-    await prisma.invoiceItem.deleteMany({
-      where: { invoiceId: params.id }
-    })
+    const { concept, amountMxn, currency, status, dueAt, paidAt } = body
 
     // Update invoice
     const invoice = await prisma.invoice.updateMany({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
       data: {
-        clientId,
-        total,
-        notes,
-        dueDate: dueDate ? new Date(dueDate) : null,
-        status: status || 'draft',
+        concept,
+        amountMxn,
+        currency,
+        status,
+        dueAt: dueAt ? new Date(dueAt) : undefined,
+        paidAt: paidAt ? new Date(paidAt) : null,
       },
     })
 
@@ -100,28 +95,12 @@ export async function PATCH(
       )
     }
 
-    // Create new items
-    if (items && items.length > 0) {
-      await prisma.invoiceItem.createMany({
-        data: items.map((item: any) => ({
-          invoiceId: params.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
-          total: item.total,
-        }))
-      })
-    }
-
     const updatedInvoice = await prisma.invoice.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
-        client: true,
-        items: {
-          include: {
-            product: true,
-          }
-        }
+        company: true,
+        subscription: true,
+        paymentAttempts: true,
       }
     })
 
@@ -137,9 +116,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -155,7 +135,7 @@ export async function DELETE(
 
     const invoice = await prisma.invoice.deleteMany({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
     })

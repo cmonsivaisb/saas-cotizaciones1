@@ -3,15 +3,19 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { 
-  ArrowLeft, 
-  Edit, 
+import {
+  ArrowLeft,
+  Edit,
   Trash2,
   Send,
   CheckCircle,
-  XCircle
+  XCircle,
+  FileText
 } from "lucide-react"
 import Link from "next/link"
+
+// Force dynamic rendering to avoid database errors during build
+export const dynamic = 'force-dynamic'
 
 async function getQuote(id: string) {
   const cookieStore = await cookies()
@@ -31,10 +35,10 @@ async function getQuote(id: string) {
         companyId,
       },
       include: {
-        client: true,
+        customer: true,
         items: {
           include: {
-            product: true,
+            item: true,
           }
         }
       }
@@ -92,10 +96,16 @@ export default async function QuoteDetailsPage({ params }: { params: { id: strin
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-2">Cotización #{quote.id.slice(-6)}</h1>
             <p className="text-muted-foreground">
-              {quote.client.name}
+              {quote.customer.businessName}
             </p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/billing">
+                <FileText className="h-4 w-4 mr-2" />
+                Ver facturación
+              </Link>
+            </Button>
             <Button variant="outline" size="sm" asChild>
               <Link href={`/quotes/${quote.id}/edit`}>
                 <Edit className="h-4 w-4 mr-2" />
@@ -158,11 +168,11 @@ export default async function QuoteDetailsPage({ params }: { params: { id: strin
                     <div className="flex-1">
                       <p className="font-medium">{item.product.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        Cantidad: {item.quantity} × ${item.price.toLocaleString('es-MX')}
+                        Cantidad: {item.quantity} × ${item.unitPrice.toLocaleString('es-MX')}
                       </p>
                     </div>
                     <p className="font-semibold">
-                      ${item.total.toLocaleString('es-MX')}
+                      ${item.amount.toLocaleString('es-MX')}
                     </p>
                   </div>
                 ))}

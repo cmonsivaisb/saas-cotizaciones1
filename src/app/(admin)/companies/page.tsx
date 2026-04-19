@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Building2, 
-  Plus, 
-  Search, 
-  Mail, 
-  Phone, 
+import {
+  Building2,
+  Plus,
+  Search,
+  Mail,
+  Phone,
   MapPin,
   Calendar,
   Users,
@@ -23,6 +23,9 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
+// Force dynamic rendering to avoid database errors during build
+export const dynamic = 'force-dynamic'
+
 async function getCompanies() {
   const companies = await prisma.company.findMany({
     orderBy: { createdAt: 'desc' },
@@ -34,7 +37,7 @@ async function getCompanies() {
       },
       _count: {
         select: {
-          clients: true,
+          customers: true,
           quotes: true,
           orders: true,
         },
@@ -168,7 +171,7 @@ function CompanyCard({ company }: { company: any }) {
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-sm font-semibold text-action-600">
                   <Users className="h-3 w-3" />
-                  {company._count.clients}
+                  {company._count.customers}
                 </div>
                 <div className="text-xs text-primary-500">Clientes</div>
               </div>

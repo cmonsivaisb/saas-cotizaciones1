@@ -29,23 +29,25 @@ export async function POST(request: NextRequest) {
 
     const order = await prisma.order.create({
       data: {
-        clientId,
+        customerId: clientId,
         companyId,
+        subtotal: total,
         total,
         notes,
-        deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+        dueDate: deliveryDate ? new Date(deliveryDate) : null,
         status: status || 'pending',
         items: {
           create: items.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-            total: item.total,
+            itemId: item.productId,
+            description: item.description || '',
+            qty: item.quantity,
+            unitPrice: item.price,
+            amount: item.total,
           }))
         }
       },
       include: {
-        client: true,
+        customer: true,
         items: true,
       }
     })
@@ -80,10 +82,10 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
 
     const where: any = { companyId }
-
+    
     if (search) {
       where.OR = [
-        { client: { name: { contains: search, mode: 'insensitive' } } },
+        { customer: { businessName: { contains: search, mode: 'insensitive' } } },
         { notes: { contains: search, mode: 'insensitive' } },
       ]
     }
@@ -96,10 +98,10 @@ export async function GET(request: NextRequest) {
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        client: true,
+        customer: true,
         items: {
           include: {
-            product: true,
+            item: true,
           }
         }
       }

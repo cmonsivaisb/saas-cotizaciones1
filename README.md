@@ -153,7 +153,7 @@ Ver [`prisma/schema.prisma`](prisma/schema.prisma) para el esquema completo.
 
 ## 🔄 Flujo de Billing
 
-1. **Registro**: Usuario se registra con plan piloto (30 días gratis)
+1. **Registro**: Usuario se registra con plan piloto (15 días gratis)
 2. **Ciclo de facturación**: Cron job diario detecta vencimientos
 3. **Gracia**: 5 días para pagar sin suspensión
 4. **Suspensión**: Si no paga, se suspende el acceso
@@ -203,9 +203,8 @@ Este proyecto es propiedad de CotizaNet. Todos los derechos reservados.
 
 ## 📞 Soporte
 
-- Email: contacto@cotizanet.com
-- Teléfono: +52 55 1234 5678
-- Ciudad de México, México
+- Email: quickbotstudios@gmail.com
+- Saltillo Coahuila Mexico
 
 ---
 

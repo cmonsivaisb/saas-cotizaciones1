@@ -103,7 +103,7 @@ async function processPayment(paymentId: string, webhookEventId: string) {
     await prisma.paymentAttempt.update({
       where: { id: paymentAttempt.id },
       data: {
-        status: paymentDetails.status,
+        status: paymentDetails.status as any,
         rawResponseJson: JSON.stringify(paymentDetails),
       },
     })

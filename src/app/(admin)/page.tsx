@@ -1,11 +1,11 @@
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Building2, 
-  CreditCard, 
-  DollarSign, 
-  Users, 
+import {
+  Building2,
+  CreditCard,
+  DollarSign,
+  Users,
   TrendingUp,
   Calendar,
   CheckCircle,
@@ -13,6 +13,9 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from "lucide-react"
+
+// Force dynamic rendering to avoid database errors during build
+export const dynamic = 'force-dynamic'
 
 async function getAdminDashboardData() {
   const now = new Date()

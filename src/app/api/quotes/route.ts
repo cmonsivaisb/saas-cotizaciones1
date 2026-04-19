@@ -18,34 +18,47 @@ export async function POST(request: NextRequest) {
     const { companyId } = sessionData
 
     const body = await request.json()
-    const { clientId, items, total, notes, validUntil, status } = body
+    const { customerId, items, total, notes, validUntil, status } = body
 
-    if (!clientId || !items || items.length === 0) {
+    if (!customerId || !items || items.length === 0) {
       return NextResponse.json(
-        { error: 'Client and items are required' },
+        { error: 'Customer and items are required' },
         { status: 400 }
       )
     }
 
+    // Default validUntil to 30 days from now if not provided
+    const defaultValidUntil = new Date()
+    defaultValidUntil.setDate(defaultValidUntil.getDate() + 30)
+
+    // Generate folio (could be enhanced to be unique per company)
+    const folio = `COT-${Date.now()}`
+
+    // Calculate subtotal from items
+    const subtotal = items.reduce((sum: number, item: any) => sum + (item.total || 0), 0)
+
     const quote = await prisma.quote.create({
       data: {
-        clientId,
+        customerId,
         companyId,
+        folio,
+        subtotal,
         total,
         notes,
-        validUntil: validUntil ? new Date(validUntil) : null,
+        validUntil: validUntil ? new Date(validUntil) : defaultValidUntil,
         status: status || 'draft',
         items: {
           create: items.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-            total: item.total,
+            itemId: item.productId || null,
+            description: item.productName || item.description || "",
+            qty: item.quantity,
+            unitPrice: item.price,
+            amount: item.total,
           }))
         }
       },
       include: {
-        client: true,
+        customer: true,
         items: true,
       }
     })
@@ -83,7 +96,7 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { client: { name: { contains: search, mode: 'insensitive' } } },
+        { customer: { businessName: { contains: search, mode: 'insensitive' } } },
         { notes: { contains: search, mode: 'insensitive' } },
       ]
     }
@@ -96,10 +109,10 @@ export async function GET(request: NextRequest) {
       where,
       orderBy: { createdAt: 'desc' },
       include: {
-        client: true,
+        customer: true,
         items: {
           include: {
-            product: true,
+            item: true,
           }
         }
       }

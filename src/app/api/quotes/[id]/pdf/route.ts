@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies()
@@ -20,16 +20,17 @@ export async function GET(
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const quoteId = params.id
+    const { id } = await params
+    const quoteId = id
 
     // Get quote with all details
     const quote = await prisma.quote.findUnique({
       where: { id: quoteId },
       include: {
-        client: true,
+        customer: true,
         items: {
           include: {
-            product: true,
+            item: true,
           },
         },
       },
@@ -303,11 +304,10 @@ function generateQuoteHTML(quote: any): string {
     <div class="section">
       <h3 class="section-title">Información del Cliente</h3>
       <div class="client-info">
-        <p><strong>Nombre:</strong> ${quote.client.name}</p>
-        ${quote.client.email ? `<p><strong>Email:</strong> ${quote.client.email}</p>` : ''}
-        ${quote.client.phone ? `<p><strong>Teléfono:</strong> ${quote.client.phone}</p>` : ''}
-        ${quote.client.address ? `<p><strong>Dirección:</strong> ${quote.client.address}</p>` : ''}
-        ${quote.client.rfc ? `<p><strong>RFC:</strong> ${quote.client.rfc}</p>` : ''}
+        <p><strong>Nombre:</strong> ${quote.customer.businessName}</p>
+        ${quote.customer.email ? `<p><strong>Email:</strong> ${quote.customer.email}</p>` : ''}
+        ${quote.customer.phone ? `<p><strong>Teléfono:</strong> ${quote.customer.phone}</p>` : ''}
+        ${quote.customer.contactName ? `<p><strong>Contacto:</strong> ${quote.customer.contactName}</p>` : ''}
       </div>
     </div>
 
@@ -327,12 +327,12 @@ function generateQuoteHTML(quote: any): string {
           ${quote.items.map((item: any) => `
             <tr>
               <td>
-                <strong>${item.product?.name || item.description}</strong>
+                <strong>${item.item?.name || item.description}</strong>
                 ${item.description ? `<br><small style="color: #6b7280;">${item.description}</small>` : ''}
               </td>
-              <td class="text-center">${item.quantity}</td>
-              <td class="text-right">$${item.price.toLocaleString('es-MX')}</td>
-              <td class="text-right">$${item.total.toLocaleString('es-MX')}</td>
+              <td class="text-center">${item.qty}</td>
+              <td class="text-right">$${item.unitPrice.toLocaleString('es-MX')}</td>
+              <td class="text-right">$${item.amount.toLocaleString('es-MX')}</td>
             </tr>
           `).join('')}
         </tbody>

@@ -27,19 +27,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const client = await prisma.client.create({
+    const customer = await prisma.customer.create({
       data: {
-        name,
+        businessName: name,
+        contactName: name,
         email,
         phone,
-        address,
-        rfc,
-        taxId,
+        source: address,
+        notes: rfc,
         companyId,
       },
     })
 
-    return NextResponse.json(client)
+    return NextResponse.json(customer)
   } catch (error) {
     console.error('Error creating client:', error)
     return NextResponse.json(
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    const clients = await prisma.client.findMany({
+    const clients = await prisma.customer.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -85,7 +85,6 @@ export async function GET(request: NextRequest) {
           select: {
             quotes: true,
             orders: true,
-            invoices: true,
           }
         }
       }

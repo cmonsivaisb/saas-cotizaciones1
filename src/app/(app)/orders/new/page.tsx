@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Save, Plus, Trash2, Send } from "lucide-react"
+import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
 import Link from "next/link"
 
-interface QuoteItem {
+interface OrderItem {
   productId: string
   productName: string
   quantity: number
@@ -18,39 +18,46 @@ interface QuoteItem {
   [key: string]: any
 }
 
-export default function NewQuotePage() {
+export default function NewOrderPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [sending, setSending] = useState(false)
   const [error, setError] = useState("")
   
-  const [clients, setClients] = useState<any[]>([])
+  const [customers, setCustomers] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
+  const [quotes, setQuotes] = useState<any[]>([])
   
   const [formData, setFormData] = useState({
     customerId: "",
+    quoteId: "",
+    dueDate: "",
     notes: "",
-    validUntil: "",
   })
   
-  const [items, setItems] = useState<QuoteItem[]>([])
+  const [items, setItems] = useState<OrderItem[]>([])
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [clientsRes, productsRes] = await Promise.all([
+        const [customersRes, productsRes, quotesRes] = await Promise.all([
           fetch('/api/clients'),
           fetch('/api/products'),
+          fetch('/api/quotes'),
         ])
         
-        if (clientsRes.ok) {
-          const clientsData = await clientsRes.json()
-          setClients(clientsData)
+        if (customersRes.ok) {
+          const customersData = await customersRes.json()
+          setCustomers(customersData)
         }
         
         if (productsRes.ok) {
           const productsData = await productsRes.json()
           setProducts(productsData)
+        }
+        
+        if (quotesRes.ok) {
+          const quotesData = await quotesRes.json()
+          setQuotes(quotesData.filter((q: any) => q.status === 'approved'))
         }
       } catch (err) {
         console.error('Error fetching data:', err)
@@ -73,7 +80,7 @@ export default function NewQuotePage() {
     setItems(items.filter((_, i) => i !== index))
   }
 
-  const updateItem = (index: number, field: keyof QuoteItem, value: any) => {
+  const updateItem = (index: number, field: keyof OrderItem, value: any) => {
     const newItems = [...items]
     newItems[index][field] = value
     
@@ -99,18 +106,37 @@ export default function NewQuotePage() {
     return items.reduce((sum, item) => sum + item.total, 0)
   }
 
-  const handleSubmit = async (e: React.FormEvent, send = false) => {
+  const handleQuoteChange = async (quoteId: string) => {
+    setFormData({ ...formData, quoteId })
+    
+    if (!quoteId) return
+    
+    try {
+      const response = await fetch(`/api/quotes/${quoteId}`)
+      if (response.ok) {
+        const quote = await response.json()
+        // Load items from quote
+        const quoteItems = quote.items.map((item: any) => ({
+          productId: item.itemId || "",
+          productName: item.description,
+          quantity: item.qty,
+          price: item.unitPrice,
+          total: item.amount,
+        }))
+        setItems(quoteItems)
+      }
+    } catch (err) {
+      console.error('Error loading quote:', err)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    
-    if (send) {
-      setSending(true)
-    } else {
-      setLoading(true)
-    }
+    setLoading(true)
 
     try {
-      const response = await fetch("/api/quotes", {
+      const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,24 +145,22 @@ export default function NewQuotePage() {
           ...formData,
           items,
           total: calculateTotal(),
-          status: send ? 'sent' : 'draft',
+          subtotal: calculateTotal(),
         }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || "Error al crear cotización")
+        setError(data.error || "Error al crear orden")
         setLoading(false)
-        setSending(false)
         return
       }
 
-      router.push("/quotes")
+      router.push("/orders")
     } catch (err) {
       setError("Error de conexión. Intenta nuevamente.")
       setLoading(false)
-      setSending(false)
     }
   }
 
@@ -153,21 +177,21 @@ export default function NewQuotePage() {
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/quotes">
+            <Link href="/orders">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold mb-2">Nueva cotización</h1>
+            <h1 className="text-3xl font-bold mb-2">Nueva orden</h1>
             <p className="text-muted-foreground">
-              Crea una cotización para un cliente
+              Crea una orden de venta para un cliente
             </p>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl">
-        <form onSubmit={(e) => handleSubmit(e, false)}>
+        <form onSubmit={handleSubmit}>
           {error && (
             <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-6">
               {error}
@@ -175,11 +199,11 @@ export default function NewQuotePage() {
           )}
 
           <div className="space-y-6">
-            {/* Client Selection */}
+            {/* Customer Selection */}
             <Card>
               <CardHeader>
                 <CardTitle>Cliente</CardTitle>
-                <CardDescription>Selecciona el cliente para esta cotización</CardDescription>
+                <CardDescription>Selecciona el cliente para esta orden</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -193,9 +217,9 @@ export default function NewQuotePage() {
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="">Seleccionar cliente...</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.name}
+                    {customers.map((customer) => (
+                      <option key={customer.id} value={customer.id}>
+                        {customer.businessName}
                       </option>
                     ))}
                   </select>
@@ -203,13 +227,40 @@ export default function NewQuotePage() {
               </CardContent>
             </Card>
 
-            {/* Quote Items */}
+            {/* Quote Selection (Optional) */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Cotización (opcional)</CardTitle>
+                <CardDescription>Selecciona una cotización aprobada para cargar sus items</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="quoteId">Cotización</Label>
+                  <select
+                    id="quoteId"
+                    name="quoteId"
+                    value={formData.quoteId}
+                    onChange={(e) => handleQuoteChange(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Seleccionar cotización...</option>
+                    {quotes.map((quote) => (
+                      <option key={quote.id} value={quote.id}>
+                        {quote.folio} - {quote.customer?.businessName} - ${quote.total.toLocaleString('es-MX')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Order Items */}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Productos/Servicios</CardTitle>
-                    <CardDescription>Agrega los items a cotizar</CardDescription>
+                    <CardDescription>Agrega los items a la orden</CardDescription>
                   </div>
                   <Button type="button" variant="outline" size="sm" onClick={addItem}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -299,7 +350,7 @@ export default function NewQuotePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Detalles adicionales</CardTitle>
-                <CardDescription>Notas y vigencia de la cotización</CardDescription>
+                <CardDescription>Notas y fecha de entrega</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -309,19 +360,19 @@ export default function NewQuotePage() {
                       id="notes"
                       name="notes"
                       rows={4}
-                      placeholder="Notas adicionales para el cliente..."
+                      placeholder="Notas adicionales para la orden..."
                       value={formData.notes}
                       onChange={handleChange}
                       className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="validUntil">Válida hasta</Label>
+                    <Label htmlFor="dueDate">Fecha de entrega</Label>
                     <Input
-                      id="validUntil"
-                      name="validUntil"
+                      id="dueDate"
+                      name="dueDate"
                       type="date"
-                      value={formData.validUntil}
+                      value={formData.dueDate}
                       onChange={handleChange}
                     />
                   </div>
@@ -333,7 +384,7 @@ export default function NewQuotePage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold">Total de la cotización</span>
+                  <span className="text-lg font-semibold">Total de la orden</span>
                   <span className="text-3xl font-bold">
                     ${calculateTotal().toLocaleString('es-MX')}
                   </span>
@@ -344,24 +395,15 @@ export default function NewQuotePage() {
             {/* Actions */}
             <div className="flex gap-3">
               <Button type="button" variant="outline" asChild>
-                <Link href="/quotes">Cancelar</Link>
+                <Link href="/orders">Cancelar</Link>
               </Button>
               <div className="flex-1" />
-              <Button 
-                type="button" 
-                variant="outline"
-                onClick={(e) => handleSubmit(e, true)}
-                disabled={sending || items.length === 0}
-              >
-                <Send className="h-4 w-4 mr-2" />
-                {sending ? "Enviando..." : "Guardar y enviar"}
-              </Button>
               <Button 
                 type="submit" 
                 disabled={loading || items.length === 0}
               >
                 <Save className="h-4 w-4 mr-2" />
-                {loading ? "Guardando..." : "Guardar borrador"}
+                {loading ? "Guardando..." : "Crear orden"}
               </Button>
             </div>
           </div>

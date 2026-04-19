@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { 
-  DollarSign, 
-  Search, 
+import {
+  DollarSign,
+  Search,
   Calendar,
   Building2,
   CreditCard,
@@ -14,6 +14,9 @@ import {
   XCircle,
   ExternalLink
 } from "lucide-react"
+
+// Force dynamic rendering to avoid database errors during build
+export const dynamic = 'force-dynamic'
 
 async function getPayments() {
   const paymentAttempts = await prisma.paymentAttempt.findMany({

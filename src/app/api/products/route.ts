@@ -27,18 +27,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const product = await prisma.product.create({
+    const item = await prisma.item.create({
       data: {
         name,
         description,
-        price,
+        salePrice: price,
         sku,
-        stock: stock || 0,
+        stockQuantity: stock || 0,
         companyId,
       },
     })
 
-    return NextResponse.json(product)
+    return NextResponse.json(item)
   } catch (error) {
     console.error('Error creating product:', error)
     return NextResponse.json(
@@ -75,12 +75,12 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    const products = await prisma.product.findMany({
+    const items = await prisma.item.findMany({
       where,
       orderBy: { name: 'asc' },
     })
 
-    return NextResponse.json(products)
+    return NextResponse.json(items)
   } catch (error) {
     console.error('Error fetching products:', error)
     return NextResponse.json(

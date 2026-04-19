@@ -144,24 +144,24 @@ export async function createUserWithCompany(data: {
       },
     })
 
-    // Get basic plan
-    const basicPlan = await tx.plan.findUnique({
-      where: { code: 'basic' },
+    // Get cotizanet plan
+    const cotizanetPlan = await tx.plan.findUnique({
+      where: { code: 'cotizanet' },
     })
 
-    if (!basicPlan) {
-      throw new Error('Basic plan not found')
+    if (!cotizanetPlan) {
+      throw new Error('CotizaNet plan not found')
     }
 
     // Create subscription
     const subscription = await tx.subscription.create({
       data: {
         companyId: company.id,
-        planId: basicPlan.id,
+        planId: cotizanetPlan.id,
         status: 'pilot',
         currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        nextBillingAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        currentPeriodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+        nextBillingAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
       },
     })
 

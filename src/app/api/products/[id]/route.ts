@@ -4,9 +4,10 @@ import { cookies } from 'next/headers'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -20,23 +21,23 @@ export async function GET(
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const product = await prisma.product.findFirst({
+    const item = await prisma.item.findFirst({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
     })
 
-    if (!product) {
+    if (!item) {
       return NextResponse.json(
-        { error: 'Product not found' },
+        { error: 'Item not found' },
         { status: 404 }
       )
     }
 
-    return NextResponse.json(product)
+    return NextResponse.json(item)
   } catch (error) {
-    console.error('Error fetching product:', error)
+    console.error('Error fetching item:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -46,9 +47,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -72,34 +74,34 @@ export async function PATCH(
       )
     }
 
-    const product = await prisma.product.updateMany({
+    const item = await prisma.item.updateMany({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
       data: {
         name,
         description,
-        price,
+        salePrice: price,
         sku,
-        stock: stock !== undefined ? stock : undefined,
+        stockQuantity: stock !== undefined ? stock : undefined,
       },
     })
 
-    if (product.count === 0) {
+    if (item.count === 0) {
       return NextResponse.json(
-        { error: 'Product not found' },
+        { error: 'Item not found' },
         { status: 404 }
       )
     }
 
-    const updatedProduct = await prisma.product.findUnique({
-      where: { id: params.id },
+    const updatedItem = await prisma.item.findUnique({
+      where: { id },
     })
 
-    return NextResponse.json(updatedProduct)
+    return NextResponse.json(updatedItem)
   } catch (error) {
-    console.error('Error updating product:', error)
+    console.error('Error updating item:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -109,9 +111,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookieStore = await cookies()
     const session = cookieStore.get('session')?.value
 
@@ -125,23 +128,23 @@ export async function DELETE(
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const product = await prisma.product.deleteMany({
+    const item = await prisma.item.deleteMany({
       where: {
-        id: params.id,
+        id,
         companyId,
       },
     })
 
-    if (product.count === 0) {
+    if (item.count === 0) {
       return NextResponse.json(
-        { error: 'Product not found' },
+        { error: 'Item not found' },
         { status: 404 }
       )
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting product:', error)
+    console.error('Error deleting item:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

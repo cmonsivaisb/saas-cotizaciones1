@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         },
         _count: {
           select: {
-            clients: true,
+            customers: true,
             quotes: true,
             orders: true,
           },

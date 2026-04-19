@@ -19,43 +19,19 @@ async function main() {
 
   // Create plans
   console.log('📦 Creating plans...')
-  const basicPlan = await prisma.plan.upsert({
-    where: { code: 'basic' },
+  const cotizanetPlan = await prisma.plan.upsert({
+    where: { code: 'cotizanet' },
     update: {},
     create: {
-      code: 'basic',
-      name: 'Básico',
-      priceMxn: 499,
+      code: 'cotizanet',
+      name: 'CotizaNet',
+      priceMxn: 500,
       durationDays: 30,
       isActive: true,
     },
   })
 
-  const proPlan = await prisma.plan.upsert({
-    where: { code: 'pro' },
-    update: {},
-    create: {
-      code: 'pro',
-      name: 'Profesional',
-      priceMxn: 999,
-      durationDays: 30,
-      isActive: true,
-    },
-  })
-
-  const enterprisePlan = await prisma.plan.upsert({
-    where: { code: 'enterprise' },
-    update: {},
-    create: {
-      code: 'enterprise',
-      name: 'Empresarial',
-      priceMxn: 1999,
-      durationDays: 30,
-      isActive: true,
-    },
-  })
-
-  console.log('✅ Plans created:', { basicPlan, proPlan, enterprisePlan })
+  console.log('✅ Plan created:', cotizanetPlan)
 
   // Create admin user
   console.log('👤 Creating admin user...')
@@ -110,11 +86,11 @@ async function main() {
     update: {},
     create: {
       companyId: testCompany.id,
-      planId: proPlan.id,
+      planId: cotizanetPlan.id,
       status: 'active',
       currentPeriodStart: new Date(),
-      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      nextBillingAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      currentPeriodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+      nextBillingAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
     },
   })
 

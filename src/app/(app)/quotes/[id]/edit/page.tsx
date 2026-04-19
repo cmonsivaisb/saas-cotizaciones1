@@ -18,11 +18,13 @@ interface QuoteItem {
   [key: string]: any
 }
 
-export default function NewQuotePage() {
+export default function EditQuotePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
+  const [quoteId, setQuoteId] = useState<string>("")
   const [loading, setLoading] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState("")
+  const [initialLoading, setInitialLoading] = useState(true)
   
   const [clients, setClients] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
@@ -38,9 +40,10 @@ export default function NewQuotePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [clientsRes, productsRes] = await Promise.all([
+        const [clientsRes, productsRes, quoteRes] = await Promise.all([
           fetch('/api/clients'),
           fetch('/api/products'),
+          fetch(`/api/quotes/${await (await params).id}`),
         ])
         
         if (clientsRes.ok) {
@@ -52,12 +55,38 @@ export default function NewQuotePage() {
           const productsData = await productsRes.json()
           setProducts(productsData)
         }
+        
+        if (quoteRes.ok) {
+          const quoteData = await quoteRes.json()
+          setFormData({
+            customerId: quoteData.customerId,
+            notes: quoteData.notes || "",
+            validUntil: quoteData.validUntil ? new Date(quoteData.validUntil).toISOString().split('T')[0] : "",
+          })
+          
+          // Transform quote items to form items
+          const transformedItems = quoteData.items.map((item: any) => ({
+            productId: item.itemId || "",
+            productName: item.product?.name || item.description,
+            quantity: item.qty,
+            price: item.unitPrice,
+            total: item.amount,
+          }))
+          setItems(transformedItems)
+        }
       } catch (err) {
         console.error('Error fetching data:', err)
+        setError("Error al cargar la cotización")
+      } finally {
+        setInitialLoading(false)
       }
     }
-    fetchData()
-  }, [])
+    
+    params.then(p => {
+      setQuoteId(p.id)
+      fetchData()
+    })
+  }, [params])
 
   const addItem = () => {
     setItems([...items, {
@@ -110,8 +139,8 @@ export default function NewQuotePage() {
     }
 
     try {
-      const response = await fetch("/api/quotes", {
-        method: "POST",
+      const response = await fetch(`/api/quotes/${quoteId}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
@@ -126,7 +155,7 @@ export default function NewQuotePage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || "Error al crear cotización")
+        setError(data.error || "Error al actualizar cotización")
         setLoading(false)
         setSending(false)
         return
@@ -147,6 +176,17 @@ export default function NewQuotePage() {
     })
   }
 
+  if (initialLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Cargando cotización...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
       {/* Header */}
@@ -158,9 +198,9 @@ export default function NewQuotePage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold mb-2">Nueva cotización</h1>
+            <h1 className="text-3xl font-bold mb-2">Editar cotización</h1>
             <p className="text-muted-foreground">
-              Crea una cotización para un cliente
+              Modifica los detalles de la cotización
             </p>
           </div>
         </div>

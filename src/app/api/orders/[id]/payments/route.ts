@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies()
@@ -20,7 +20,8 @@ export async function POST(
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const orderId = params.id
+    const { id } = await params
+    const orderId = id
 
     // Get order
     const order = await prisma.order.findUnique({
@@ -57,6 +58,7 @@ export async function POST(
     // Create payment
     const payment = await prisma.orderPayment.create({
       data: {
+        companyId,
         orderId,
         paymentDate: new Date(paymentDate),
         amount: parseFloat(amount),
@@ -78,7 +80,7 @@ export async function POST(
       await prisma.order.update({
         where: { id: orderId },
         data: {
-          status: 'completed',
+          status: 'delivered',
         },
       })
     }
@@ -100,7 +102,7 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies()
@@ -116,7 +118,8 @@ export async function GET(
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const orderId = params.id
+    const { id } = await params
+    const orderId = id
 
     // Get order with payments
     const order = await prisma.order.findUnique({

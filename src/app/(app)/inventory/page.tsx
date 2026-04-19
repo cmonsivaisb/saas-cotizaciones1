@@ -4,10 +4,10 @@ import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { 
-  Package, 
-  Plus, 
-  Search, 
+import {
+  Package,
+  Plus,
+  Search,
   DollarSign,
   AlertTriangle,
   ArrowRight,
@@ -17,6 +17,9 @@ import {
   TrendingDown
 } from "lucide-react"
 import Link from "next/link"
+
+// Force dynamic rendering to avoid database errors during build
+export const dynamic = 'force-dynamic'
 
 async function getProducts() {
   const cookieStore = await cookies()
@@ -30,7 +33,7 @@ async function getProducts() {
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const products = await prisma.product.findMany({
+    const products = await prisma.item.findMany({
       where: { companyId },
       orderBy: { createdAt: 'desc' }
     })
@@ -44,7 +47,7 @@ async function getProducts() {
 
 export default async function InventoryPage() {
   const products = await getProducts()
-  const lowStockProducts = products.filter((p: any) => p.stock <= p.minStock)
+  const lowStockProducts = products.filter((p: any) => p.stockQuantity <= p.minimumStock)
 
   return (
     <div className="space-y-6">
@@ -136,8 +139,8 @@ export default async function InventoryPage() {
 }
 
 function ProductCard({ product }: { product: any }) {
-  const isLowStock = product.stock <= product.minStock
-  const stockPercentage = (product.stock / product.minStock) * 100
+  const isLowStock = product.stockQuantity <= product.minimumStock
+  const stockPercentage = (product.stockQuantity / product.minimumStock) * 100
   
   return (
     <Card className={`hover:shadow-lg transition-all duration-200 group ${isLowStock ? 'border-warning-200' : ''}`}>
@@ -164,7 +167,7 @@ function ProductCard({ product }: { product: any }) {
           <span className="text-sm text-primary-500">Precio</span>
           <div className="flex items-center gap-1 text-xl font-bold text-primary-900">
             <DollarSign className="h-4 w-4" />
-            {product.price.toLocaleString('es-MX')}
+            {product.salePrice.toLocaleString('es-MX')}
           </div>
         </div>
  
@@ -174,7 +177,7 @@ function ProductCard({ product }: { product: any }) {
             <span className="text-sm text-primary-500">Stock</span>
             <div className="flex items-center gap-2">
               <span className={`text-lg font-semibold ${isLowStock ? 'text-warning-600' : 'text-success-600'}`}>
-                {product.stock}
+                {product.stockQuantity}
               </span>
               {isLowStock && (
                 <AlertTriangle className="h-4 w-4 text-warning-600" />
@@ -188,7 +191,7 @@ function ProductCard({ product }: { product: any }) {
             />
           </div>
           <div className="flex items-center justify-between text-xs text-primary-500">
-            <span>Mínimo: {product.minStock}</span>
+            <span>Mínimo: {product.minimumStock}</span>
             <span>{isLowStock ? 'Bajo stock' : 'Stock OK'}</span>
           </div>
         </div>

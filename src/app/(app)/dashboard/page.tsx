@@ -4,11 +4,11 @@ import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { 
-  FileText, 
-  Package, 
-  DollarSign, 
-  Users, 
+import {
+  FileText,
+  Package,
+  DollarSign,
+  Users,
   Plus,
   ArrowRight,
   TrendingUp,
@@ -19,6 +19,9 @@ import {
   Calendar
 } from "lucide-react"
 import Link from "next/link"
+
+// Force dynamic rendering to avoid database errors during build
+export const dynamic = 'force-dynamic'
 
 async function getDashboardData() {
   const cookieStore = await cookies()
@@ -43,7 +46,7 @@ async function getDashboardData() {
       prisma.invoice.count({
         where: { companyId }
       }),
-      prisma.client.count({
+      prisma.customer.count({
         where: { companyId }
       })
     ])
@@ -51,14 +54,14 @@ async function getDashboardData() {
     // Get recent activity
     const recentQuotes = await prisma.quote.findMany({
       where: { companyId },
-      include: { client: true },
+      include: { customer: true },
       orderBy: { createdAt: 'desc' },
       take: 5
     })
 
     const recentOrders = await prisma.order.findMany({
       where: { companyId },
-      include: { client: true },
+      include: { customer: true },
       orderBy: { createdAt: 'desc' },
       take: 5
     })
@@ -71,11 +74,11 @@ async function getDashboardData() {
       }
     })
 
-    // Get overdue invoices
-    const overdueInvoices = await prisma.invoice.count({
+    // Get expired invoices
+    const expiredInvoices = await prisma.invoice.count({
       where: { 
         companyId,
-        status: 'overdue'
+        status: 'expired'
       }
     })
 
@@ -114,7 +117,7 @@ async function getDashboardData() {
       recentQuotes,
       recentOrders,
       pendingOrders,
-      overdueInvoices,
+      expiredInvoices,
       recentActivity
     }
   } catch (error) {
@@ -127,7 +130,7 @@ async function getDashboardData() {
       recentQuotes: [],
       recentOrders: [],
       pendingOrders: 0,
-      overdueInvoices: 0,
+      expiredInvoices: 0,
       recentActivity: []
     }
   }
@@ -172,7 +175,7 @@ export default async function DashboardPage() {
           title="Facturas"
           value={data.invoicesCount}
           icon={<DollarSign className="h-5 w-5" />}
-          description={`${data.overdueInvoices} vencidas`}
+          description={`${data.expiredInvoices} vencidas`}
           trend="+5% este mes"
           trendUp={true}
         />
@@ -246,7 +249,7 @@ export default async function DashboardPage() {
                   <div key={quote.id} className="flex items-start justify-between p-4 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <p className="font-semibold text-base text-primary-900">{quote.client.name}</p>
+                        <p className="font-semibold text-base text-primary-900">{quote.customer.businessName}</p>
                         <StatusBadge status={quote.status} />
                       </div>
                       <div className="flex items-center gap-4 text-sm text-primary-500">
@@ -294,7 +297,7 @@ export default async function DashboardPage() {
                   <div key={order.id} className="flex items-start justify-between p-4 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <p className="font-semibold text-base text-primary-900">{order.client.name}</p>
+                        <p className="font-semibold text-base text-primary-900">{order.customer.businessName}</p>
                         <StatusBadge status={order.status} />
                       </div>
                       <div className="flex items-center gap-4 text-sm text-primary-500">
