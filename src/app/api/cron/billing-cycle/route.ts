@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createSubscriptionCheckoutPreference, toJsonSafe } from '@/lib/mercadopago'
+import { ERROR_MESSAGES } from '@/lib/errors'
 
 export async function GET(request: NextRequest) {
   try {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
+import { ERROR_MESSAGES } from '@/lib/errors'
 
 export async function GET(request: NextRequest) {
   try {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createUserWithCompany, createSession } from '@/lib/auth'
 import { cookies } from 'next/headers'
 import { z } from 'zod'
+import { ERROR_MESSAGES } from '@/lib/errors'
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 import { createSubscriptionCheckoutPreference, toJsonSafe } from '@/lib/mercadopago'
+import { ERROR_MESSAGES } from '@/lib/errors'
 
 export async function POST(request: NextRequest) {
   try {

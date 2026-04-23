@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
 import { getMercadoPagoPaymentDetails, mapMercadoPagoStatusToAttemptStatus, toJsonSafe } from '@/lib/mercadopago'
+import { ERROR_MESSAGES } from '@/lib/errors'
 
 export async function POST(request: NextRequest) {
   try {
