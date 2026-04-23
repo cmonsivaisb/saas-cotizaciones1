@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getUserByEmail, verifyPassword, createSession } from '@/lib/auth'
 import { cookies } from 'next/headers'
+import { ERROR_MESSAGES } from '@/lib/errors'
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,41 +10,37 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Por favor ingresa tu correo y contraseña' },
+        { error: ERROR_MESSAGES.emailRequired },
         { status: 400 }
       )
     }
 
-    // Get user
     const user = await getUserByEmail(email)
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Correo o contraseña incorrectos. Por favor verifica tus datos.' },
+        { error: ERROR_MESSAGES.invalidCredentials },
         { status: 401 }
       )
     }
 
-    // Verify password
     const isValid = await verifyPassword(password, user.passwordHash)
 
     if (!isValid) {
       return NextResponse.json(
-        { error: 'Correo o contraseña incorrectos. Por favor verifica tus datos.' },
+        { error: ERROR_MESSAGES.invalidCredentials },
         { status: 401 }
       )
     }
 
-    // Create session
     const session = createSession(user)
 
-    // Set session cookie
     const cookieStore = await cookies()
     cookieStore.set('session', JSON.stringify(session), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
       path: '/',
     })
 
@@ -59,7 +56,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json(
-      { error: 'Hubo un problema al iniciar sesión. Por favor intenta de nuevo más tarde.' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }

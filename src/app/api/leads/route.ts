@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ERROR_MESSAGES } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }

@@ -94,7 +94,7 @@ export async function POST(
   } catch (error) {
     console.error('Error creating order payment:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }
@@ -160,7 +160,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching order payments:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }

@@ -63,7 +63,7 @@ export async function GET(
   } catch (error) {
     console.error('Error generating quote PDF:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }

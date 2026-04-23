@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in billing cycle cron:', error)
     return NextResponse.json(
-      { error: 'Internal server error', details: error },
+      { error: ERROR_MESSAGES.serverError, details: error },
       { status: 500 }
     )
   }

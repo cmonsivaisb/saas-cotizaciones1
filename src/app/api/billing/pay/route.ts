@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating payment:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }

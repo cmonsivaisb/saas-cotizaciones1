@@ -32,7 +32,7 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating lead:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }

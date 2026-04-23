@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
+import { ERROR_MESSAGES } from '@/lib/errors'
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,19 +9,19 @@ export async function POST(request: NextRequest) {
     const session = cookieStore.get('session')?.value
 
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: ERROR_MESSAGES.unauthorized }, { status: 401 })
     }
 
     const sessionData = JSON.parse(session)
     if (sessionData.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: ERROR_MESSAGES.forbidden }, { status: 403 })
     }
 
     const body = await request.formData()
     const subscriptionId = body.get('subscriptionId') as string
 
     if (!subscriptionId) {
-      return NextResponse.json({ error: 'Subscription ID required' }, { status: 400 })
+      return NextResponse.json({ error: ERROR_MESSAGES.required('subscription ID') }, { status: 400 })
     }
 
     const now = new Date()
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error reactivating subscription:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }

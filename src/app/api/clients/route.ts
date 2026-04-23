@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ERROR_MESSAGES } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating client:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }
@@ -95,7 +96,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching clients:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: ERROR_MESSAGES.serverError },
       { status: 500 }
     )
   }
