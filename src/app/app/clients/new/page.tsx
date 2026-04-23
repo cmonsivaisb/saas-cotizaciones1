@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Save, Building2, Mail, Phone, MapPin, FileText } from "lucide-react"
 import Link from "next/link"
+import { AlertError } from "@/components/alert-message"
 
 export default function NewClientPage() {
   const router = useRouter()
@@ -86,11 +87,7 @@ export default function NewClientPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
+            {error && <AlertError message={error} />}
 
             {/* Basic Information */}
             <div className="space-y-4">

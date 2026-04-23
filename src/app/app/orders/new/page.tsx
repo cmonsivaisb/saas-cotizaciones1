@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { AlertError } from "@/components/alert-message"
 
 interface OrderItem {
   productId: string
@@ -194,11 +195,7 @@ export default function NewOrderPage() {
 
       <div className="max-w-4xl">
         <form onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-6">
-              {error}
-            </div>
-          )}
+          {error && <AlertError message={error} />}
 
           <div className="space-y-6">
             {/* Customer Selection */}

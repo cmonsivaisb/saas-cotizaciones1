@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileText, Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react"
+import { AlertError } from "@/components/alert-message"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -115,11 +116,7 @@ export default function ContactPage() {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    {submitError && (
-                      <div className="bg-danger-50 border border-danger-200 text-danger-900 px-4 py-3 rounded-md">
-                        {submitError}
-                      </div>
-                    )}
+                    {submitError && <AlertError message={submitError} />}
                     <div className="space-y-2">
                       <Label htmlFor="name">Nombre</Label>
                       <Input

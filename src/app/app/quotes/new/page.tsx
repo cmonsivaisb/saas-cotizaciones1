@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Save, Plus, Trash2, Send } from "lucide-react"
 import Link from "next/link"
+import { AlertError } from "@/components/alert-message"
 
 interface QuoteItem {
   productId: string
@@ -168,11 +169,7 @@ export default function NewQuotePage() {
 
       <div className="max-w-4xl">
         <form onSubmit={(e) => handleSubmit(e, false)}>
-          {error && (
-            <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-6">
-              {error}
-            </div>
-          )}
+          {error && <AlertError message={error} />}
 
           <div className="space-y-6">
             {/* Client Selection */}
