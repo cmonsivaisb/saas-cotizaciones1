@@ -137,6 +137,21 @@ export default async function HomePage() {
             <path d="M25 40 L35 50 L55 30" stroke="currentColor" strokeWidth="4" fill="none" className="opacity-50"/>
           </svg>
         </div>
+        <div className="absolute top-1/3 left-1/4 w-20 h-20 text-blue-300/20 pointer-events-none">
+          <svg viewBox="0 0 60 60" fill="currentColor">
+            <rect x="10" y="15" width="40" height="30" rx="3" fill="currentColor" className="opacity-15"/>
+            <circle cx="30" cy="30" r="8" fill="currentColor" className="opacity-25"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-20 right-20 w-16 h-16 text-green-400/30 pointer-events-none rotate-12">
+          <svg viewBox="0 0 50 50" fill="currentColor">
+            <path d="M10 40 L20 25 L30 35 L40 15" stroke="currentColor" strokeWidth="3" fill="none" className="opacity-50"/>
+            <circle cx="10" cy="40" r="3" fill="currentColor"/>
+            <circle cx="20" cy="25" r="3" fill="currentColor"/>
+            <circle cx="30" cy="35" r="3" fill="currentColor"/>
+            <circle cx="40" cy="15" r="3" fill="currentColor"/>
+          </svg>
+        </div>
         
         <div className="container mx-auto max-w-6xl relative z-10">
           <h2 className="text-3xl font-bold text-center mb-12">
@@ -204,6 +219,22 @@ export default async function HomePage() {
             <circle cx="80" cy="65" r="5" fill="currentColor" className="opacity-40"/>
           </svg>
         </div>
+        <div className="absolute top-40 right-1/4 w-20 h-20 text-yellow-400/30 -rotate-12 pointer-events-none">
+          <svg viewBox="0 0 60 60" fill="currentColor">
+            <circle cx="30" cy="30" r="25" fill="currentColor" className="opacity-10"/>
+            <circle cx="30" cy="30" r="15" fill="currentColor" className="opacity-15"/>
+            <path d="M20 30 L30 40 L40 25" stroke="currentColor" strokeWidth="3" fill="none" className="opacity-50"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-10 left-1/3 w-16 h-16 text-purple-400/25 rotate-6 pointer-events-none">
+          <svg viewBox="0 0 50 50" fill="currentColor">
+            <rect x="8" y="8" width="34" height="34" rx="4" fill="currentColor" className="opacity-12"/>
+            <circle cx="16" cy="20" r="4" fill="currentColor" className="opacity-30"/>
+            <circle cx="34" cy="20" r="4" fill="currentColor" className="opacity-30"/>
+            <circle cx="16" cy="32" r="4" fill="currentColor" className="opacity-30"/>
+            <circle cx="34" cy="32" r="4" fill="currentColor" className="opacity-30"/>
+          </svg>
+        </div>
         
         <div className="container mx-auto max-w-6xl relative z-10">
           <h2 className="text-3xl font-bold text-center mb-4">
@@ -261,6 +292,23 @@ export default async function HomePage() {
             <path d="M20 100 L40 60 L60 80 L80 40 L100 60" stroke="currentColor" strokeWidth="4" fill="none" className="opacity-25"/>
           </svg>
         </div>
+        <div className="absolute top-1/4 right-10 w-20 h-20 text-blue-400/25 pointer-events-none rotate-6">
+          <svg viewBox="0 0 60 60" fill="currentColor">
+            <path d="M10 50 L20 30 L30 40 L40 20 L50 35" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-40"/>
+            <circle cx="10" cy="50" r="4" fill="currentColor" className="opacity-50"/>
+            <circle cx="20" cy="30" r="4" fill="currentColor" className="opacity-50"/>
+            <circle cx="30" cy="40" r="4" fill="currentColor" className="opacity-50"/>
+            <circle cx="40" cy="20" r="4" fill="currentColor" className="opacity-50"/>
+            <circle cx="50" cy="35" r="4" fill="currentColor" className="opacity-50"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-1/3 left-10 w-16 h-16 text-green-400/20 pointer-events-none -rotate-12">
+          <svg viewBox="0 0 50 50" fill="currentColor">
+            <rect x="8" y="10" width="34" height="30" rx="3" fill="currentColor" className="opacity-12"/>
+            <rect x="14" y="16" width="22" height="3" rx="1" fill="currentColor" className="opacity-30"/>
+            <rect x="14" y="22" width="16" height="2" rx="1" fill="currentColor" className="opacity-25"/>
+          </svg>
+        </div>
         
         <div className="container mx-auto max-w-4xl relative z-10">
           <h2 className="text-3xl font-bold text-center mb-12">
@@ -308,6 +356,18 @@ export default async function HomePage() {
             <path d="M40 70 L55 85 L80 55" stroke="currentColor" strokeWidth="6" fill="none" className="opacity-50"/>
           </svg>
         </div>
+        <div className="absolute top-20 right-1/3 w-20 h-20 text-yellow-400/20 pointer-events-none rotate-12">
+          <svg viewBox="0 0 60 60" fill="currentColor">
+            <circle cx="30" cy="30" r="25" fill="currentColor" className="opacity-10"/>
+            <path d="M18 30 L26 38 L42 22" stroke="currentColor" strokeWidth="3" fill="none" className="opacity-50"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-1/3 left-1/4 w-16 h-16 text-purple-400/20 pointer-events-none">
+          <svg viewBox="0 0 50 50" fill="currentColor">
+            <rect x="8" y="8" width="34" height="34" rx="4" fill="currentColor" className="opacity-10"/>
+            <circle cx="25" cy="25" r="10" fill="currentColor" className="opacity-20"/>
+          </svg>
+        </div>
         
         <div className="container mx-auto max-w-6xl relative z-10">
           <h2 className="text-3xl font-bold text-center mb-12">
@@ -339,7 +399,19 @@ export default async function HomePage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4 bg-muted/50">
+      <section id="pricing" className="py-20 px-4 bg-muted/50 relative overflow-hidden">
+        <div className="absolute top-10 left-10 w-24 h-24 text-blue-400/20 pointer-events-none rotate-6">
+          <svg viewBox="0 0 70 70" fill="currentColor">
+            <circle cx="35" cy="35" r="30" fill="currentColor" className="opacity-10"/>
+            <path d="M20 50 L30 35 L40 45 L50 25" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-40"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-10 right-10 w-20 h-20 text-green-400/20 pointer-events-none -rotate-6">
+          <svg viewBox="0 0 60 60" fill="currentColor">
+            <rect x="10" y="12" width="40" height="36" rx="4" fill="currentColor" className="opacity-10"/>
+            <path d="M20 40 L30 30 L40 35" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-50"/>
+          </svg>
+        </div>
         <div className="container mx-auto max-w-5xl">
           <h2 className="text-3xl font-bold text-center mb-4">
             Precios simples y transparentes
@@ -370,7 +442,29 @@ export default async function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 relative overflow-hidden">
+        <div className="absolute top-10 left-1/4 w-32 h-32 text-blue-300/20 pointer-events-none">
+          <svg viewBox="0 0 100 100" fill="currentColor">
+            <circle cx="50" cy="50" r="40" fill="currentColor" className="opacity-10"/>
+            <circle cx="50" cy="50" r="25" fill="currentColor" className="opacity-15"/>
+            <circle cx="50" cy="50" r="12" fill="currentColor" className="opacity-20"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-10 right-1/4 w-28 h-28 text-green-400/20 pointer-events-none rotate-12">
+          <svg viewBox="0 0 80 80" fill="currentColor">
+            <rect x="12" y="16" width="56" height="48" rx="6" fill="currentColor" className="opacity-10"/>
+            <circle cx="40" cy="34" r="10" fill="currentColor" className="opacity-25"/>
+            <path d="M24 55 L35 45 L48 52 L58 38" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-40"/>
+          </svg>
+        </div>
+        <div className="absolute top-1/2 right-10 w-20 h-20 text-yellow-400/15 pointer-events-none -rotate-12">
+          <svg viewBox="0 0 60 60" fill="currentColor">
+            <path d="M10 50 Q20 30 30 20 T50 10" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-30"/>
+            <circle cx="10" cy="50" r="3" fill="currentColor" className="opacity-40"/>
+            <circle cx="30" cy="30" r="3" fill="currentColor" className="opacity-40"/>
+            <circle cx="50" cy="10" r="3" fill="currentColor" className="opacity-40"/>
+          </svg>
+        </div>
         <div className="container mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-bold mb-4">
             ¿Listo para transformar tu negocio?
