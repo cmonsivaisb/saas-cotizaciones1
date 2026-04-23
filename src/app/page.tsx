@@ -123,7 +123,7 @@ export default async function HomePage() {
       {/* Problem Section */}
       <section className="py-16 px-4 bg-muted/50 relative overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-40 h-40 text-primary-200/20 pointer-events-none">
+        <div className="absolute top-0 right-0 w-40 h-40 pointer-events-none" style={{ color: '#cbd5e1' }}>
           <svg viewBox="0 0 100 100" fill="currentColor">
             <rect x="20" y="10" width="60" height="80" rx="4" fill="currentColor" className="opacity-20"/>
             <rect x="30" y="25" width="40" height="4" rx="2" fill="currentColor" className="opacity-40"/>
@@ -131,21 +131,21 @@ export default async function HomePage() {
             <rect x="30" y="45" width="35" height="3" rx="1" fill="currentColor" className="opacity-30"/>
           </svg>
         </div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 text-primary-300/15 pointer-events-none">
+        <div className="absolute bottom-0 left-0 w-32 h-32 pointer-events-none" style={{ color: '#94a3b8' }}>
           <svg viewBox="0 0 80 80" fill="currentColor">
             <circle cx="40" cy="40" r="30" fill="currentColor" className="opacity-15"/>
             <path d="M25 40 L35 50 L55 30" stroke="currentColor" strokeWidth="4" fill="none" className="opacity-50"/>
           </svg>
         </div>
-        <div className="absolute top-1/3 left-1/4 w-20 h-20 text-blue-300/20 pointer-events-none">
+        <div className="absolute top-1/3 left-1/4 w-20 h-20 pointer-events-none" style={{ color: '#60a5fa' }}>
           <svg viewBox="0 0 60 60" fill="currentColor">
-            <rect x="10" y="15" width="40" height="30" rx="3" fill="currentColor" className="opacity-15"/>
-            <circle cx="30" cy="30" r="8" fill="currentColor" className="opacity-25"/>
+            <rect x="10" y="15" width="40" height="30" rx="3" fill="currentColor" className="opacity-30"/>
+            <circle cx="30" cy="30" r="8" fill="currentColor" className="opacity-40"/>
           </svg>
         </div>
-        <div className="absolute bottom-20 right-20 w-16 h-16 text-green-400/30 pointer-events-none rotate-12">
+        <div className="absolute bottom-20 right-20 w-16 h-16 pointer-events-none rotate-12" style={{ color: '#4ade80' }}>
           <svg viewBox="0 0 50 50" fill="currentColor">
-            <path d="M10 40 L20 25 L30 35 L40 15" stroke="currentColor" strokeWidth="3" fill="none" className="opacity-50"/>
+            <path d="M10 40 L20 25 L30 35 L40 15" stroke="currentColor" strokeWidth="3" fill="none" className="opacity-60"/>
             <circle cx="10" cy="40" r="3" fill="currentColor"/>
             <circle cx="20" cy="25" r="3" fill="currentColor"/>
             <circle cx="30" cy="35" r="3" fill="currentColor"/>
@@ -201,38 +201,38 @@ export default async function HomePage() {
       {/* Features Section */}
       <section id="features" className="py-20 px-4 relative overflow-hidden">
         {/* Decorative floating elements */}
-        <div className="absolute top-20 left-10 w-24 h-24 text-blue-300/30 rotate-12 pointer-events-none">
+        <div className="absolute top-20 left-10 w-24 h-24 rotate-12 pointer-events-none" style={{ color: '#60a5fa' }}>
           <svg viewBox="0 0 80 80" fill="currentColor">
-            <rect x="10" y="15" width="60" height="50" rx="4" fill="currentColor" className="opacity-15"/>
-            <rect x="18" y="22" width="44" height="4" rx="2" fill="currentColor" className="opacity-30"/>
-            <rect x="18" y="30" width="30" height="3" rx="1" fill="currentColor" className="opacity-25"/>
-            <circle cx="40" cy="50" r="8" fill="currentColor" className="opacity-20"/>
+            <rect x="10" y="15" width="60" height="50" rx="4" fill="currentColor" className="opacity-30"/>
+            <rect x="18" y="22" width="44" height="4" rx="2" fill="currentColor" className="opacity-50"/>
+            <rect x="18" y="30" width="30" height="3" rx="1" fill="currentColor" className="opacity-40"/>
+            <circle cx="40" cy="50" r="8" fill="currentColor" className="opacity-40"/>
           </svg>
         </div>
-        <div className="absolute bottom-24 right-16 w-28 h-28 text-green-400/25 -rotate-6 pointer-events-none">
+        <div className="absolute bottom-24 right-16 w-28 h-28 -rotate-6 pointer-events-none" style={{ color: '#22c55e' }}>
           <svg viewBox="0 0 100 100" fill="currentColor">
-            <path d="M20 80 L35 55 L50 70 L65 45 L80 65" stroke="currentColor" strokeWidth="6" fill="none" className="opacity-30"/>
-            <circle cx="20" cy="80" r="5" fill="currentColor" className="opacity-40"/>
-            <circle cx="35" cy="55" r="5" fill="currentColor" className="opacity-40"/>
-            <circle cx="50" cy="70" r="5" fill="currentColor" className="opacity-40"/>
-            <circle cx="65" cy="45" r="5" fill="currentColor" className="opacity-40"/>
-            <circle cx="80" cy="65" r="5" fill="currentColor" className="opacity-40"/>
+            <path d="M20 80 L35 55 L50 70 L65 45 L80 65" stroke="currentColor" strokeWidth="6" fill="none" className="opacity-50"/>
+            <circle cx="20" cy="80" r="5" fill="currentColor" className="opacity-70"/>
+            <circle cx="35" cy="55" r="5" fill="currentColor" className="opacity-70"/>
+            <circle cx="50" cy="70" r="5" fill="currentColor" className="opacity-70"/>
+            <circle cx="65" cy="45" r="5" fill="currentColor" className="opacity-70"/>
+            <circle cx="80" cy="65" r="5" fill="currentColor" className="opacity-70"/>
           </svg>
         </div>
-        <div className="absolute top-40 right-1/4 w-20 h-20 text-yellow-400/30 -rotate-12 pointer-events-none">
+        <div className="absolute top-40 right-1/4 w-20 h-20 -rotate-12 pointer-events-none" style={{ color: '#facc15' }}>
           <svg viewBox="0 0 60 60" fill="currentColor">
-            <circle cx="30" cy="30" r="25" fill="currentColor" className="opacity-10"/>
-            <circle cx="30" cy="30" r="15" fill="currentColor" className="opacity-15"/>
-            <path d="M20 30 L30 40 L40 25" stroke="currentColor" strokeWidth="3" fill="none" className="opacity-50"/>
+            <circle cx="30" cy="30" r="25" fill="currentColor" className="opacity-20"/>
+            <circle cx="30" cy="30" r="15" fill="currentColor" className="opacity-30"/>
+            <path d="M20 30 L30 40 L40 25" stroke="currentColor" strokeWidth="3" fill="none" className="opacity-60"/>
           </svg>
         </div>
-        <div className="absolute bottom-10 left-1/3 w-16 h-16 text-purple-400/25 rotate-6 pointer-events-none">
+        <div className="absolute bottom-10 left-1/3 w-16 h-16 rotate-6 pointer-events-none" style={{ color: '#a78bfa' }}>
           <svg viewBox="0 0 50 50" fill="currentColor">
-            <rect x="8" y="8" width="34" height="34" rx="4" fill="currentColor" className="opacity-12"/>
-            <circle cx="16" cy="20" r="4" fill="currentColor" className="opacity-30"/>
-            <circle cx="34" cy="20" r="4" fill="currentColor" className="opacity-30"/>
-            <circle cx="16" cy="32" r="4" fill="currentColor" className="opacity-30"/>
-            <circle cx="34" cy="32" r="4" fill="currentColor" className="opacity-30"/>
+            <rect x="8" y="8" width="34" height="34" rx="4" fill="currentColor" className="opacity-25"/>
+            <circle cx="16" cy="20" r="4" fill="currentColor" className="opacity-50"/>
+            <circle cx="34" cy="20" r="4" fill="currentColor" className="opacity-50"/>
+            <circle cx="16" cy="32" r="4" fill="currentColor" className="opacity-50"/>
+            <circle cx="34" cy="32" r="4" fill="currentColor" className="opacity-50"/>
           </svg>
         </div>
         
@@ -281,32 +281,32 @@ export default async function HomePage() {
       {/* How it Works Section */}
       <section id="how-it-works" className="py-20 px-4 bg-muted/50 relative overflow-hidden">
         {/* Decorative corner elements */}
-        <div className="absolute top-0 left-0 w-32 h-32 text-primary-300/10 pointer-events-none">
+        <div className="absolute top-0 left-0 w-32 h-32 pointer-events-none" style={{ color: '#cbd5e1' }}>
           <svg viewBox="0 0 100 100" fill="currentColor">
-            <circle cx="50" cy="50" r="40" fill="currentColor" className="opacity-10"/>
-            <rect x="30" y="30" width="40" height="40" rx="4" fill="currentColor" className="opacity-15"/>
+            <circle cx="50" cy="50" r="40" fill="currentColor" className="opacity-20"/>
+            <rect x="30" y="30" width="40" height="40" rx="4" fill="currentColor" className="opacity-30"/>
           </svg>
         </div>
-        <div className="absolute bottom-0 right-0 w-40 h-40 text-primary-300/10 pointer-events-none">
+        <div className="absolute bottom-0 right-0 w-40 h-40 pointer-events-none" style={{ color: '#94a3b8' }}>
           <svg viewBox="0 0 120 120" fill="currentColor">
-            <path d="M20 100 L40 60 L60 80 L80 40 L100 60" stroke="currentColor" strokeWidth="4" fill="none" className="opacity-25"/>
+            <path d="M20 100 L40 60 L60 80 L80 40 L100 60" stroke="currentColor" strokeWidth="4" fill="none" className="opacity-40"/>
           </svg>
         </div>
-        <div className="absolute top-1/4 right-10 w-20 h-20 text-blue-400/25 pointer-events-none rotate-6">
+        <div className="absolute top-1/4 right-10 w-20 h-20 pointer-events-none rotate-6" style={{ color: '#60a5fa' }}>
           <svg viewBox="0 0 60 60" fill="currentColor">
-            <path d="M10 50 L20 30 L30 40 L40 20 L50 35" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-40"/>
-            <circle cx="10" cy="50" r="4" fill="currentColor" className="opacity-50"/>
-            <circle cx="20" cy="30" r="4" fill="currentColor" className="opacity-50"/>
-            <circle cx="30" cy="40" r="4" fill="currentColor" className="opacity-50"/>
-            <circle cx="40" cy="20" r="4" fill="currentColor" className="opacity-50"/>
-            <circle cx="50" cy="35" r="4" fill="currentColor" className="opacity-50"/>
+            <path d="M10 50 L20 30 L30 40 L40 20 L50 35" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-50"/>
+            <circle cx="10" cy="50" r="4" fill="currentColor" className="opacity-70"/>
+            <circle cx="20" cy="30" r="4" fill="currentColor" className="opacity-70"/>
+            <circle cx="30" cy="40" r="4" fill="currentColor" className="opacity-70"/>
+            <circle cx="40" cy="20" r="4" fill="currentColor" className="opacity-70"/>
+            <circle cx="50" cy="35" r="4" fill="currentColor" className="opacity-70"/>
           </svg>
         </div>
-        <div className="absolute bottom-1/3 left-10 w-16 h-16 text-green-400/20 pointer-events-none -rotate-12">
+        <div className="absolute bottom-1/3 left-10 w-16 h-16 pointer-events-none -rotate-12" style={{ color: '#22c55e' }}>
           <svg viewBox="0 0 50 50" fill="currentColor">
-            <rect x="8" y="10" width="34" height="30" rx="3" fill="currentColor" className="opacity-12"/>
-            <rect x="14" y="16" width="22" height="3" rx="1" fill="currentColor" className="opacity-30"/>
-            <rect x="14" y="22" width="16" height="2" rx="1" fill="currentColor" className="opacity-25"/>
+            <rect x="8" y="10" width="34" height="30" rx="3" fill="currentColor" className="opacity-25"/>
+            <rect x="14" y="16" width="22" height="3" rx="1" fill="currentColor" className="opacity-50"/>
+            <rect x="14" y="22" width="16" height="2" rx="1" fill="currentColor" className="opacity-40"/>
           </svg>
         </div>
         
@@ -342,30 +342,30 @@ export default async function HomePage() {
       {/* Benefits Section */}
       <section className="py-20 px-4 relative overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute top-1/2 left-10 w-36 h-36 text-blue-300/25 -z-10 pointer-events-none">
+        <div className="absolute top-1/2 left-10 w-36 h-36 -z-10 pointer-events-none" style={{ color: '#60a5fa' }}>
           <svg viewBox="0 0 100 100" fill="currentColor">
-            <path d="M10 90 Q30 50 50 30 T90 10" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-30"/>
-            <circle cx="50" cy="30" r="4" fill="currentColor" className="opacity-40"/>
-            <circle cx="70" cy="50" r="4" fill="currentColor" className="opacity-40"/>
-            <circle cx="90" cy="90" r="4" fill="currentColor" className="opacity-40"/>
+            <path d="M10 90 Q30 50 50 30 T90 10" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-40"/>
+            <circle cx="50" cy="30" r="4" fill="currentColor" className="opacity-60"/>
+            <circle cx="70" cy="50" r="4" fill="currentColor" className="opacity-60"/>
+            <circle cx="90" cy="90" r="4" fill="currentColor" className="opacity-60"/>
           </svg>
         </div>
-        <div className="absolute bottom-10 right-10 w-40 h-40 text-green-400/25 pointer-events-none">
+        <div className="absolute bottom-10 right-10 w-40 h-40 pointer-events-none" style={{ color: '#22c55e' }}>
           <svg viewBox="0 0 120 120" fill="currentColor">
-            <rect x="20" y="20" width="80" height="80" rx="8" fill="currentColor" className="opacity-10"/>
-            <path d="M40 70 L55 85 L80 55" stroke="currentColor" strokeWidth="6" fill="none" className="opacity-50"/>
+            <rect x="20" y="20" width="80" height="80" rx="8" fill="currentColor" className="opacity-25"/>
+            <path d="M40 70 L55 85 L80 55" stroke="currentColor" strokeWidth="6" fill="none" className="opacity-70"/>
           </svg>
         </div>
-        <div className="absolute top-20 right-1/3 w-20 h-20 text-yellow-400/20 pointer-events-none rotate-12">
+        <div className="absolute top-20 right-1/3 w-20 h-20 pointer-events-none rotate-12" style={{ color: '#facc15' }}>
           <svg viewBox="0 0 60 60" fill="currentColor">
-            <circle cx="30" cy="30" r="25" fill="currentColor" className="opacity-10"/>
-            <path d="M18 30 L26 38 L42 22" stroke="currentColor" strokeWidth="3" fill="none" className="opacity-50"/>
+            <circle cx="30" cy="30" r="25" fill="currentColor" className="opacity-25"/>
+            <path d="M18 30 L26 38 L42 22" stroke="currentColor" strokeWidth="3" fill="none" className="opacity-60"/>
           </svg>
         </div>
-        <div className="absolute bottom-1/3 left-1/4 w-16 h-16 text-purple-400/20 pointer-events-none">
+        <div className="absolute bottom-1/3 left-1/4 w-16 h-16 pointer-events-none" style={{ color: '#a78bfa' }}>
           <svg viewBox="0 0 50 50" fill="currentColor">
-            <rect x="8" y="8" width="34" height="34" rx="4" fill="currentColor" className="opacity-10"/>
-            <circle cx="25" cy="25" r="10" fill="currentColor" className="opacity-20"/>
+            <rect x="8" y="8" width="34" height="34" rx="4" fill="currentColor" className="opacity-25"/>
+            <circle cx="25" cy="25" r="10" fill="currentColor" className="opacity-40"/>
           </svg>
         </div>
         
@@ -400,16 +400,16 @@ export default async function HomePage() {
 
       {/* Pricing Section */}
       <section id="pricing" className="py-20 px-4 bg-muted/50 relative overflow-hidden">
-        <div className="absolute top-10 left-10 w-24 h-24 text-blue-400/20 pointer-events-none rotate-6">
+        <div className="absolute top-10 left-10 w-24 h-24 pointer-events-none rotate-6" style={{ color: '#60a5fa' }}>
           <svg viewBox="0 0 70 70" fill="currentColor">
-            <circle cx="35" cy="35" r="30" fill="currentColor" className="opacity-10"/>
-            <path d="M20 50 L30 35 L40 45 L50 25" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-40"/>
+            <circle cx="35" cy="35" r="30" fill="currentColor" className="opacity-25"/>
+            <path d="M20 50 L30 35 L40 45 L50 25" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-60"/>
           </svg>
         </div>
-        <div className="absolute bottom-10 right-10 w-20 h-20 text-green-400/20 pointer-events-none -rotate-6">
+        <div className="absolute bottom-10 right-10 w-20 h-20 pointer-events-none -rotate-6" style={{ color: '#22c55e' }}>
           <svg viewBox="0 0 60 60" fill="currentColor">
-            <rect x="10" y="12" width="40" height="36" rx="4" fill="currentColor" className="opacity-10"/>
-            <path d="M20 40 L30 30 L40 35" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-50"/>
+            <rect x="10" y="12" width="40" height="36" rx="4" fill="currentColor" className="opacity-25"/>
+            <path d="M20 40 L30 30 L40 35" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-70"/>
           </svg>
         </div>
         <div className="container mx-auto max-w-5xl">
@@ -443,26 +443,26 @@ export default async function HomePage() {
 
       {/* CTA Section */}
       <section className="py-20 px-4 relative overflow-hidden">
-        <div className="absolute top-10 left-1/4 w-32 h-32 text-blue-300/20 pointer-events-none">
+        <div className="absolute top-10 left-1/4 w-32 h-32 pointer-events-none" style={{ color: '#60a5fa' }}>
           <svg viewBox="0 0 100 100" fill="currentColor">
-            <circle cx="50" cy="50" r="40" fill="currentColor" className="opacity-10"/>
-            <circle cx="50" cy="50" r="25" fill="currentColor" className="opacity-15"/>
-            <circle cx="50" cy="50" r="12" fill="currentColor" className="opacity-20"/>
+            <circle cx="50" cy="50" r="40" fill="currentColor" className="opacity-25"/>
+            <circle cx="50" cy="50" r="25" fill="currentColor" className="opacity-35"/>
+            <circle cx="50" cy="50" r="12" fill="currentColor" className="opacity-45"/>
           </svg>
         </div>
-        <div className="absolute bottom-10 right-1/4 w-28 h-28 text-green-400/20 pointer-events-none rotate-12">
+        <div className="absolute bottom-10 right-1/4 w-28 h-28 pointer-events-none rotate-12" style={{ color: '#22c55e' }}>
           <svg viewBox="0 0 80 80" fill="currentColor">
-            <rect x="12" y="16" width="56" height="48" rx="6" fill="currentColor" className="opacity-10"/>
-            <circle cx="40" cy="34" r="10" fill="currentColor" className="opacity-25"/>
-            <path d="M24 55 L35 45 L48 52 L58 38" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-40"/>
+            <rect x="12" y="16" width="56" height="48" rx="6" fill="currentColor" className="opacity-25"/>
+            <circle cx="40" cy="34" r="10" fill="currentColor" className="opacity-45"/>
+            <path d="M24 55 L35 45 L48 52 L58 38" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-70"/>
           </svg>
         </div>
-        <div className="absolute top-1/2 right-10 w-20 h-20 text-yellow-400/15 pointer-events-none -rotate-12">
+        <div className="absolute top-1/2 right-10 w-20 h-20 pointer-events-none -rotate-12" style={{ color: '#facc15' }}>
           <svg viewBox="0 0 60 60" fill="currentColor">
-            <path d="M10 50 Q20 30 30 20 T50 10" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-30"/>
-            <circle cx="10" cy="50" r="3" fill="currentColor" className="opacity-40"/>
-            <circle cx="30" cy="30" r="3" fill="currentColor" className="opacity-40"/>
-            <circle cx="50" cy="10" r="3" fill="currentColor" className="opacity-40"/>
+            <path d="M10 50 Q20 30 30 20 T50 10" stroke="currentColor" strokeWidth="2" fill="none" className="opacity-40"/>
+            <circle cx="10" cy="50" r="3" fill="currentColor" className="opacity-60"/>
+            <circle cx="30" cy="30" r="3" fill="currentColor" className="opacity-60"/>
+            <circle cx="50" cy="10" r="3" fill="currentColor" className="opacity-60"/>
           </svg>
         </div>
         <div className="container mx-auto max-w-3xl text-center">
