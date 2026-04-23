@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Por favor ingresa tu correo y contraseña' },
         { status: 400 }
       )
     }
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Correo o contraseña incorrectos. Por favor verifica tus datos.' },
         { status: 401 }
       )
     }
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     if (!isValid) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Correo o contraseña incorrectos. Por favor verifica tus datos.' },
         { status: 401 }
       )
     }
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Hubo un problema al iniciar sesión. Por favor intenta de nuevo más tarde.' },
       { status: 500 }
     )
   }

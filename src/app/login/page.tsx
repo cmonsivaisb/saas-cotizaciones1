@@ -33,7 +33,7 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || "Error al iniciar sesión")
+        setError(data.error || "Ocurrió un error al iniciar sesión")
         setLoading(false)
         return
       }
