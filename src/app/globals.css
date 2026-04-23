@@ -4,6 +4,7 @@
  * CotizaNet Design System - CSS Variables
  * Based on ui-ux-pro-max-skill principles
  * Professional B2B SaaS for Mexican SMEs
+ * Style: Soft UI Evolution (tranquil, professional, trustworthy)
  */
 
 @theme {
@@ -96,12 +97,101 @@
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
 }
 
-/* Accessibility: Focus visible */
+/* UI-UX Pro Max Inspired Enhancements */
+
+/* Background gradients - subtle & professional */
+.bg-gradient-subtle {
+  background: linear-gradient(
+    180deg,
+    var(--color-background) 0%,
+    var(--color-muted) 100%
+  );
+}
+
+.bg-gradient-card {
+  background: linear-gradient(
+    135deg,
+    var(--color-card) 0%,
+    var(--color-muted) 50%,
+    var(--color-card) 100%
+  );
+}
+
+.bg-gradient-action {
+  background: linear-gradient(
+    135deg,
+    var(--color-action-500) 0%,
+    var(--color-action-600) 100%
+  );
+}
+
+/* Soft shadows - depth without harshness */
+.shadow-soft {
+  box-shadow: 
+    0 1px 2px 0 rgb(0 0 0 / 0.05),
+    0 2px 4px -1px rgb(0 0 0 / 0.1),
+    0 4px 8px -2px rgb(0 0 0 / 0.1);
+}
+
+.shadow-soft-md {
+  box-shadow: 
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 6px 12px -4px rgb(0 0 0 / 0.1);
+}
+
+.shadow-soft-lg {
+  box-shadow: 
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 8px 24px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 20px -4px rgb(0 0 0 / 0.15),
+    0 4px 12px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-fast {
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-slow {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus states - visible for keyboard navigation */
 *:focus-visible {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;
+}
+
+/* Cursor pointer on clickable elements */
+button,
+a,
+[role="button"],
+input[type="checkbox"],
+input[type="radio"],
+select {
+  cursor: pointer;
 }
 
 /* Accessibility: Reduced motion */
@@ -112,6 +202,49 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Animation for alert attention */
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+.animate-pulse-once {
+  animation: subtle-pulse 0.5s ease-in-out 1;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Stagger animation for lists */
+.stagger-fade-in > * {
+  animation: fadeInUp 300ms ease-out both;
+}
+
+.stagger-fade-in > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-fade-in > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-fade-in > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-fade-in > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-fade-in > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-fade-in > *:nth-child(6) { animation-delay: 250ms; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
