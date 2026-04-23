@@ -1,12 +1,5 @@
 @import "tailwindcss";
 
-/**
- * CotizaNet Design System - CSS Variables
- * Based on ui-ux-pro-max-skill principles
- * Professional B2B SaaS for Mexican SMEs
- * Style: Soft UI Evolution (tranquil, professional, trustworthy)
- */
-
 @theme {
   /* Primary Colors - Slate (Trust & Authority) */
   --color-primary-50: #f8fafc;
