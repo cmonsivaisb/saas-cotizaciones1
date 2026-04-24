@@ -3,13 +3,6 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import jsPDF from 'jspdf'
 
-async function getQuote(id: string, companyId: string) {
-  return prisma.quote.findFirst({
-    where: { id, companyId },
-    include: { customer: true, items: { include: { item: true } } }
-  })
-}
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -24,13 +17,15 @@ export async function GET(
 
   try {
     const { companyId } = JSON.parse(session)
-    const quote = await getQuote(id, companyId)
+    const order = await prisma.order.findFirst({
+      where: { id, companyId },
+      include: { customer: true, items: { include: { item: true } } }
+    })
 
-    if (!quote) {
-      return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    // Generate PDF using jsPDF
     const doc = new jsPDF()
 
     // Header
@@ -38,31 +33,47 @@ export async function GET(
     doc.text('COTIZANET', 20, 25)
     
     doc.setFontSize(18)
-    doc.text(`Cotización #${quote.id.slice(-6)}`, 140, 20)
+    doc.text(`Pedido #${order.id.slice(-6)}`, 140, 20)
     doc.setFontSize(10)
-    doc.text(`Fecha: ${new Date(quote.createdAt).toLocaleDateString('es-MX')}`, 140, 28)
-    doc.text(`Válido hasta: ${quote.validUntil ? new Date(quote.validUntil).toLocaleDateString('es-MX') : '30 días'}`, 140, 35)
+    doc.text(`Fecha: ${new Date(order.createdAt).toLocaleDateString('es-MX')}`, 140, 28)
+    if (order.dueDate) {
+      doc.text(`Entrega: ${new Date(order.dueDate).toLocaleDateString('es-MX')}`, 140, 35)
+    }
+
+    // Status badge
+    const statusColors: any = {
+      pending: [254, 243, 199, 146],
+      processing: [219, 234, 254, 29],
+      completed: [209, 250, 229, 6],
+      delivered: [6, 95, 70, 6],
+      cancelled: [254, 226, 226, 153]
+    }
+    const statusBg = statusColors[order.status] || [254, 243, 199]
+    doc.setFillColor(statusBg[0], statusBg[1], statusBg[2])
+    doc.roundedRect(160, 38, 30, 8, 2, 2, 'F')
+    doc.setFontSize(8)
+    doc.text(order.status, 165, 43)
 
     // Line
     doc.setLineWidth(0.5)
-    doc.line(20, 45, 190, 45)
+    doc.line(20, 50, 190, 50)
 
     // Client info
     doc.setFontSize(12)
-    doc.text('Cliente:', 20, 55)
+    doc.text('Cliente:', 20, 60)
     doc.setFontSize(14)
-    doc.text(quote.customer.businessName, 20, 63)
+    doc.text(order.customer.businessName, 20, 68)
     
-    if (quote.customer.email) {
+    if (order.customer.email) {
       doc.setFontSize(10)
-      doc.text(quote.customer.email, 20, 70)
+      doc.text(order.customer.email, 20, 75)
     }
-    if (quote.customer.phone) {
-      doc.text(quote.customer.phone || '', 20, 77)
+    if (order.customer.phone) {
+      doc.text(order.customer.phone || '', 20, 82)
     }
 
     // Products header
-    let y = 95
+    let y = 100
     doc.setFillColor(51, 51, 51)
     doc.rect(20, y - 5, 170, 8, 'F')
     doc.setTextColor(255, 255, 255)
@@ -75,7 +86,7 @@ export async function GET(
     // Products
     y += 10
     doc.setTextColor(0, 0, 0)
-    quote.items.forEach((item: any) => {
+    order.items.forEach((item: any) => {
       doc.text(item.item?.name || item.description || 'Producto', 22, y)
       doc.text(item.qty.toString(), 110, y)
       doc.text(`$${item.unitPrice.toLocaleString()}`, 135, y)
@@ -87,21 +98,21 @@ export async function GET(
     y += 10
     doc.line(120, y, 190, y)
     y += 10
-    doc.text(`Subtotal: $${quote.total.toLocaleString()}`, 140, y)
+    doc.text(`Subtotal: $${order.total.toLocaleString()}`, 140, y)
     y += 7
-    doc.text(`IVA (16%): $${(quote.total * 0.16).toLocaleString()}`, 140, y)
+    doc.text(`IVA (16%): $${(order.total * 0.16).toLocaleString()}`, 140, y)
     y += 7
     doc.setFontSize(14)
-    doc.text(`Total: $${(quote.total * 1.16).toLocaleString()}`, 140, y)
+    doc.text(`Total: $${(order.total * 1.16).toLocaleString()}`, 140, y)
 
     // Notes
-    if (quote.notes) {
+    if (order.notes) {
       y += 20
       doc.setFontSize(12)
       doc.text('Notas:', 20, y)
       doc.setFontSize(10)
       y += 7
-      const lines = doc.splitTextToSize(quote.notes, 170)
+      const lines = doc.splitTextToSize(order.notes, 170)
       lines.forEach((line: string) => {
         doc.text(line, 20, y)
         y += 5
@@ -112,14 +123,13 @@ export async function GET(
     doc.setFontSize(8)
     doc.setTextColor(128, 128, 128)
     doc.text('CotizaNet - cotizanet.com', 20, 285)
-    doc.text(`Este documento es una cotización válida por 30 días.`, 120, 285)
 
     // Return PDF
     const pdfBuffer = doc.output('arraybuffer')
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="cotizacion-${quote.id.slice(-6)}.pdf"`,
+        'Content-Disposition': `attachment; filename="pedido-${order.id.slice(-6)}.pdf"`,
       },
     })
   } catch (error) {

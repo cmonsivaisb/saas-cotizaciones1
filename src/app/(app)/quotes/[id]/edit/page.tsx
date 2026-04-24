@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,9 +18,11 @@ interface QuoteItem {
   [key: string]: any
 }
 
-export default function EditQuotePage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditQuotePage() {
   const router = useRouter()
-  const [quoteId, setQuoteId] = useState<string>("")
+  const params = useParams<{ id: string }>()
+  const quoteId = params?.id
+
   const [loading, setLoading] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState("")
@@ -38,12 +40,14 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
   const [items, setItems] = useState<QuoteItem[]>([])
 
   useEffect(() => {
+    if (!quoteId) return
+    
     async function fetchData() {
       try {
         const [clientsRes, productsRes, quoteRes] = await Promise.all([
           fetch('/api/clients'),
           fetch('/api/products'),
-          fetch(`/api/quotes/${await (await params).id}`),
+          fetch(`/api/quotes/${quoteId}`),
         ])
         
         if (clientsRes.ok) {
@@ -64,7 +68,6 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
             validUntil: quoteData.validUntil ? new Date(quoteData.validUntil).toISOString().split('T')[0] : "",
           })
           
-          // Transform quote items to form items
           const transformedItems = quoteData.items.map((item: any) => ({
             productId: item.itemId || "",
             productName: item.product?.name || item.description,
@@ -82,11 +85,8 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
       }
     }
     
-    params.then(p => {
-      setQuoteId(p.id)
-      fetchData()
-    })
-  }, [params])
+    fetchData()
+  }, [quoteId])
 
   const addItem = () => {
     setItems([...items, {
@@ -116,6 +116,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
       const product = products.find(p => p.id === value)
       if (product) {
         newItems[index].productName = product.name
+        newItems[index].description = product.name
         newItems[index].price = product.salePrice
         newItems[index].total = newItems[index].quantity * product.salePrice
       }

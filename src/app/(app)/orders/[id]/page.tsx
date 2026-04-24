@@ -128,6 +128,12 @@ export default async function OrderDetailPage({
         </div>
         <div className="flex gap-2 items-center">
           <OrderActions orderId={order.id} orderStatus={order.status} />
+          <Button variant="outline" className="gap-2" asChild>
+            <Link href={`/api/orders/${order.id}/print`} target="_blank">
+              <Printer className="h-4 w-4" />
+              Imprimir
+            </Link>
+          </Button>
           {order.quote && (
             <Button variant="outline" className="gap-2" asChild>
               <Link href="/billing">
@@ -305,7 +311,7 @@ export default async function OrderDetailPage({
           <CardContent>
             <Button variant="outline" asChild>
               <Link href={`/quotes/${order.quote.id}`}>
-                Ver cotización #{order.quote.folio}
+                Ver cotización #{order.quote.quoteNumber}
               </Link>
             </Button>
           </CardContent>

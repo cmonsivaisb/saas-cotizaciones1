@@ -34,8 +34,9 @@ export async function POST(request: NextRequest) {
         contactName: name,
         email,
         phone,
-        source: address,
-        notes: rfc,
+        address,
+        rfc,
+        taxId,
         companyId,
       },
     })

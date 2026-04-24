@@ -87,6 +87,7 @@ export default function NewQuotePage() {
       const product = products.find(p => p.id === value)
       if (product) {
         newItems[index].productName = product.name
+        newItems[index].description = product.name
         newItems[index].price = product.salePrice
         newItems[index].total = newItems[index].quantity * product.salePrice
       }

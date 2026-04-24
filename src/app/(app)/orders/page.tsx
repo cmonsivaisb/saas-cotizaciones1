@@ -3,17 +3,14 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
   Package,
   Plus,
-  Search,
   Calendar,
   DollarSign,
   User,
   ArrowRight,
-  Filter,
   Truck,
   CheckCircle,
   Clock,
@@ -21,11 +18,20 @@ import {
   FileText
 } from "lucide-react"
 import Link from "next/link"
+import ClientSearch from "@/components/client-search"
+
+const orderStatusOptions = [
+  { value: "all", label: "Todos" },
+  { value: "pending", label: "Pendiente" },
+  { value: "in_progress", label: "En proceso" },
+  { value: "delivered", label: "Entregado" },
+  { value: "cancelled", label: "Cancelado" },
+]
 
 // Force dynamic rendering to avoid database errors during build
 export const dynamic = 'force-dynamic'
 
-async function getOrders() {
+async function getOrders(search?: string, page = 1, pageSize = 10) {
   const cookieStore = await cookies()
   const session = cookieStore.get('session')?.value
 
@@ -37,21 +43,40 @@ async function getOrders() {
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const orders = await prisma.order.findMany({
-      where: { companyId },
-      include: { customer: true },
-      orderBy: { createdAt: 'desc' }
-    })
+    const where: any = { companyId }
+    
+    if (search) {
+      where.OR = [
+        { customer: { businessName: { contains: search, mode: 'insensitive' } } },
+        { id: { contains: search } },
+      ]
+    }
 
-    return orders
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        include: { customer: true },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.order.count({ where }),
+    ])
+
+    return { orders, total }
   } catch (error) {
     console.error('Error fetching orders:', error)
-    return []
+    return { orders: [], total: 0 }
   }
 }
 
-export default async function OrdersPage() {
-  const orders = await getOrders()
+export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ search?: string; page?: string; status?: string; dateFrom?: string; dateTo?: string }> }) {
+  const params = await searchParams
+  const search = params.search
+  const page = parseInt(params.page || '1')
+  const pageSize = 10
+  
+  const { orders, total } = await getOrders(search, page, pageSize)
 
   return (
     <div className="space-y-6">
@@ -82,19 +107,7 @@ export default async function OrdersPage() {
       {/* Search and Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary-400" />
-              <Input
-                placeholder="Buscar por cliente o número..."
-                className="pl-10"
-              />
-            </div>
-            <Button variant="outline" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filtros
-            </Button>
-          </div>
+          <ClientSearch totalItems={total} pageSize={pageSize} basePath="/orders" statusOptions={orderStatusOptions} showStatus={true} showDates={true} />
         </CardContent>
       </Card>
 

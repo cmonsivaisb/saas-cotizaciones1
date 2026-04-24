@@ -81,6 +81,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search')
     const status = searchParams.get('status')
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const skip = (page - 1) * limit
 
     const where: any = { companyId }
     
@@ -88,6 +91,7 @@ export async function GET(request: NextRequest) {
       where.OR = [
         { customer: { businessName: { contains: search, mode: 'insensitive' } } },
         { notes: { contains: search, mode: 'insensitive' } },
+        { orderNumber: parseInt(search) || undefined },
       ]
     }
 
@@ -95,20 +99,33 @@ export async function GET(request: NextRequest) {
       where.status = status
     }
 
-    const orders = await prisma.order.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        customer: true,
-        items: {
-          include: {
-            item: true,
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          customer: true,
+          items: {
+            include: {
+              item: true,
+            }
           }
         }
+      }),
+      prisma.order.count({ where })
+    ])
+
+    return NextResponse.json({
+      data: orders,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
       }
     })
-
-    return NextResponse.json(orders)
   } catch (error) {
     console.error('Error fetching orders:', error)
     return NextResponse.json(

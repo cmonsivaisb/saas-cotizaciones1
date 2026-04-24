@@ -4,23 +4,27 @@ import SuccessMessage from './success-message'
 import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { 
   FileText,
   Calendar,
   DollarSign,
   User,
-  Search,
-  Filter,
   CheckCircle,
   Clock,
   XCircle,
   Download,
-  ExternalLink,
-  AlertCircle
+  ExternalLink
 } from "lucide-react"
 import Link from "next/link"
+import ClientSearch from "@/components/client-search"
+
+const invoiceStatusOptions = [
+  { value: "all", label: "Todos" },
+  { value: "pending", label: "Pendiente" },
+  { value: "paid", label: "Pagada" },
+  { value: "cancelled", label: "Cancelada" },
+]
 
 // Force dynamic rendering to avoid database errors during build
 export const dynamic = 'force-dynamic'
@@ -37,32 +41,60 @@ interface Invoice {
   order?: any
 }
 
-async function getAllInvoices(companyId: string): Promise<Invoice[]> {
+async function getInvoices(search?: string, page = 1, pageSize = 10, status?: string, dateFrom?: string, dateTo?: string) {
+  const cookieStore = await cookies()
+  const session = cookieStore.get('session')?.value
+
+  if (!session) {
+    redirect('/login')
+  }
+
   try {
-    const invoices = await prisma.invoice.findMany({
-      where: {
-        companyId,
-      },
-      include: {
-        company: true,
-        order: {
-          include: {
-            customer: true,
-            quote: true,
-            payments: true,
+    const sessionData = JSON.parse(session)
+    const { companyId } = sessionData
+
+    const where: any = { companyId }
+    
+    if (search) {
+      where.OR = [
+        { concept: { contains: search, mode: 'insensitive' } },
+        { id: { contains: search } },
+        { order: { customer: { businessName: { contains: search, mode: 'insensitive' } } } },
+      ]
+    }
+    
+    if (status && status !== 'all') {
+      where.status = status
+    }
+
+    const [invoices, total] = await Promise.all([
+      prisma.invoice.findMany({
+        where,
+        include: {
+          company: true,
+          order: {
+            include: {
+              customer: true,
+              quote: true,
+              payments: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    })
-    return invoices as Invoice[]
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.invoice.count({ where }),
+    ])
+
+    return { invoices: invoices as Invoice[], total }
   } catch (error) {
     console.error('Error fetching invoices:', error)
-    return []
+    return { invoices: [], total: 0 }
   }
 }
 
-export default async function BillingPage() {
+export default async function BillingPage({ searchParams }: { searchParams: Promise<{ search?: string; page?: string; status?: string; dateFrom?: string; dateTo?: string }> }) {
   const cookieStore = await cookies()
   const session = cookieStore.get('session')?.value
 
@@ -73,7 +105,15 @@ export default async function BillingPage() {
   const sessionData = JSON.parse(session)
   const { companyId } = sessionData
 
-  const invoices = await getAllInvoices(companyId)
+  const params = await searchParams
+  const search = params.search
+  const page = parseInt(params.page || '1')
+  const pageSize = 10
+  const status = params.status
+  const dateFrom = params.dateFrom
+  const dateTo = params.dateTo
+
+  const { invoices, total } = await getInvoices(search, page, pageSize, status, dateFrom, dateTo)
 
   return (
     <div className="space-y-6">
@@ -99,19 +139,15 @@ export default async function BillingPage() {
       {/* Search and Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary-400" />
-              <Input
-                placeholder="Buscar por cliente, folio o concepto..."
-                className="pl-10"
-              />
-            </div>
-            <Button variant="outline" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filtros
-            </Button>
-          </div>
+          <ClientSearch 
+            totalItems={total} 
+            pageSize={pageSize} 
+            placeholder="Buscar por cliente, folio o concepto..."
+            basePath="/billing"
+            statusOptions={invoiceStatusOptions}
+            showStatus={true}
+            showDates={true}
+          />
         </CardContent>
       </Card>
 

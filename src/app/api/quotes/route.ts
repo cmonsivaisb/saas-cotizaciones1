@@ -28,21 +28,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Default validUntil to 30 days from now if not provided
-    const defaultValidUntil = new Date()
-    defaultValidUntil.setDate(defaultValidUntil.getDate() + 30)
+// Default validUntil to 30 days from now if not provided
+  const defaultValidUntil = new Date()
+  defaultValidUntil.setDate(defaultValidUntil.getDate() + 30)
 
-    // Generate folio (could be enhanced to be unique per company)
-    const folio = `COT-${Date.now()}`
-
-    // Calculate subtotal from items
-    const subtotal = items.reduce((sum: number, item: any) => sum + (item.total || 0), 0)
+  // Calculate subtotal from items
+  const subtotal = items.reduce((sum: number, item: any) => sum + (item.total || 0), 0)
 
     const quote = await prisma.quote.create({
       data: {
         customerId,
         companyId,
-        folio,
         subtotal,
         total,
         notes,
@@ -51,7 +47,7 @@ export async function POST(request: NextRequest) {
         items: {
           create: items.map((item: any) => ({
             itemId: item.productId || null,
-            description: item.productName || item.description || "",
+            description: item.description || item.productName || "",
             qty: item.quantity,
             unitPrice: item.price,
             amount: item.total,
@@ -92,6 +88,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search')
     const status = searchParams.get('status')
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const skip = (page - 1) * limit
 
     const where: any = { companyId }
 
@@ -99,6 +98,7 @@ export async function GET(request: NextRequest) {
       where.OR = [
         { customer: { businessName: { contains: search, mode: 'insensitive' } } },
         { notes: { contains: search, mode: 'insensitive' } },
+        { quoteNumber: parseInt(search) || undefined },
       ]
     }
 
@@ -106,20 +106,33 @@ export async function GET(request: NextRequest) {
       where.status = status
     }
 
-    const quotes = await prisma.quote.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        customer: true,
-        items: {
-          include: {
-            item: true,
+    const [quotes, total] = await Promise.all([
+      prisma.quote.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          customer: true,
+          items: {
+            include: {
+              item: true,
+            }
           }
         }
+      }),
+      prisma.quote.count({ where })
+    ])
+
+    return NextResponse.json({
+      data: quotes,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
       }
     })
-
-    return NextResponse.json(quotes)
   } catch (error) {
     console.error('Error fetching quotes:', error)
     return NextResponse.json(

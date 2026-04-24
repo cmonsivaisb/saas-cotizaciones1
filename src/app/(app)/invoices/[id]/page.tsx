@@ -13,7 +13,8 @@ import {
   Clock,
   XCircle,
   FileText,
-  ExternalLink
+  ExternalLink,
+  Printer
 } from "lucide-react"
 import Link from "next/link"
 import PrintInvoiceButton from "./print-invoice-button"
@@ -119,7 +120,7 @@ export default async function InvoiceDetailPage({
           </div>
         </div>
         <div className="flex gap-2 items-center no-print">
-          <PrintInvoiceButton />
+          <PrintInvoiceButton invoiceId={invoice.id} />
           {invoice.order && (
             <Button variant="outline" size="sm" className="gap-2" asChild>
               <Link href={`/orders/${invoice.order.id}`}>
@@ -301,7 +302,7 @@ export default async function InvoiceDetailPage({
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-primary-900">Cotizacion #{invoice.order.quote.folio}</p>
+                <p className="font-semibold text-primary-900">Cotizacion #{invoice.order.quote.quoteNumber}</p>
                 <p className="text-sm text-primary-500">
                   Fecha: {new Date(invoice.order.quote.createdAt).toLocaleDateString('es-MX')}
                 </p>

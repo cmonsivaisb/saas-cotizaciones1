@@ -7,21 +7,18 @@ import { Input } from "@/components/ui/input"
 import {
   Package,
   Plus,
-  Search,
   DollarSign,
   AlertTriangle,
   ArrowRight,
   Edit,
-  Trash2,
-  TrendingUp,
-  TrendingDown
+  Search
 } from "lucide-react"
 import Link from "next/link"
+import { revalidatePath } from 'next/cache'
 
-// Force dynamic rendering to avoid database errors during build
 export const dynamic = 'force-dynamic'
 
-async function getProducts() {
+async function getProducts(search?: string, page = 1, pageSize = 12) {
   const cookieStore = await cookies()
   const session = cookieStore.get('session')?.value
 
@@ -33,20 +30,39 @@ async function getProducts() {
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const products = await prisma.item.findMany({
-      where: { companyId },
-      orderBy: { createdAt: 'desc' }
-    })
+    const where: any = { companyId }
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { sku: { contains: search, mode: 'insensitive' } },
+      ]
+    }
 
-    return products
+    const [products, total] = await Promise.all([
+      prisma.item.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.item.count({ where }),
+    ])
+
+    return { products, total }
   } catch (error) {
     console.error('Error fetching products:', error)
-    return []
+    return { products: [], total: 0 }
   }
 }
 
-export default async function InventoryPage() {
-  const products = await getProducts()
+export default async function InventoryPage({ searchParams }: { searchParams: Promise<{ search?: string; page?: string }> }) {
+  revalidatePath('/inventory')
+  const params = await searchParams
+  const search = params.search
+  const page = parseInt(params.page || '1')
+  const pageSize = 12
+  
+  const { products, total } = await getProducts(search, page, pageSize)
   const lowStockProducts = products.filter((p: any) => p.stockQuantity <= p.minimumStock)
 
   return (
@@ -96,15 +112,21 @@ export default async function InventoryPage() {
       {/* Search and Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <form method="get" className="flex gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por nombre, SKU o categoría..."
+                name="search"
+                placeholder="Buscar por nombre o SKU..."
+                defaultValue={search || ''}
                 className="pl-10"
               />
             </div>
-          </div>
+            <Button type="submit" variant="default">
+              <Search className="h-4 w-4 mr-2" />
+              Buscar
+            </Button>
+          </form>
         </CardContent>
       </Card>
 
@@ -195,15 +217,6 @@ function ProductCard({ product }: { product: any }) {
             <span>{isLowStock ? 'Bajo stock' : 'Stock OK'}</span>
           </div>
         </div>
- 
-        {/* Category */}
-        {product.category && (
-          <div className="pt-2 border-t-2 border-primary-200">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-900">
-              {product.category}
-            </span>
-          </div>
-        )}
       </CardContent>
     </Card>
   )

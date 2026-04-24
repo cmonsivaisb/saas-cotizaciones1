@@ -16,7 +16,6 @@ import {
   X,
   ChevronRight,
   Bell,
-  Search,
   CreditCard
 } from "lucide-react"
 
@@ -26,8 +25,8 @@ const navigation = [
   { name: 'Cotizaciones', href: '/quotes', icon: FileText },
   { name: 'Pedidos', href: '/orders', icon: Package },
   { name: 'Facturación', href: '/billing', icon: DollarSign },
-  { name: 'Suscripción', href: '/subscription', icon: CreditCard },
   { name: 'Inventario', href: '/inventory', icon: Package },
+  { name: 'Suscripción', href: '/subscription', icon: CreditCard },
   { name: 'Configuración', href: '/settings', icon: Settings },
 ]
 
@@ -181,16 +180,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               >
                 {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>              
-              <div className="hidden md:flex items-center gap-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary-400" />
-                  <input
-                    type="text"
-                    placeholder="Buscar..."
-                    className="pl-10 pr-4 py-2 w-64 rounded-lg border-2 border-primary-300 bg-white text-sm text-primary-900 focus-visible:outline-none focus-visible:border-action-600 focus-visible:ring-2 focus-visible:ring-action-600/20"
-                  />
-                </div>
-              </div>
             </div>
 
             <div className="flex items-center gap-3">

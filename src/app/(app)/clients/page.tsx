@@ -2,29 +2,24 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import ClientSearch from "@/components/client-search"
 import {
   Users,
   Plus,
-  Search,
   Mail,
   Phone,
   MapPin,
   FileText,
-  Package,
-  DollarSign,
-  MoreVertical,
   Edit,
   Trash2,
-  ArrowRight
+  MoreVertical
 } from "lucide-react"
 import Link from "next/link"
 
-// Force dynamic rendering to avoid database errors during build
 export const dynamic = 'force-dynamic'
 
-async function getClients() {
+async function getClients(search?: string, page = 1, pageSize = 10, status?: string, dateFrom?: string, dateTo?: string) {
   const cookieStore = await cookies()
   const session = cookieStore.get('session')?.value
 
@@ -36,37 +31,78 @@ async function getClients() {
     const sessionData = JSON.parse(session)
     const { companyId } = sessionData
 
-    const clients = await prisma.customer.findMany({
-      where: { companyId },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        _count: {
-          select: {
-            quotes: true,
-            orders: true,
-          }
+    const where: any = { companyId }
+    if (search) {
+      where.OR = [
+        { businessName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search } },
+      ]
+    }
+
+    const include: any = {
+      _count: {
+        select: {
+          quotes: true,
+          orders: true,
         }
       }
+    }
+
+    let clients = await prisma.customer.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include,
     })
 
-    return clients
+    if (status && status !== 'all') {
+      clients = clients.filter((c: any) => {
+        if (status === 'active') return c._count.orders > 0
+        if (status === 'no_orders') return !c._count.orders || c._count.orders === 0
+        if (status === 'with_quotes') return c._count.quotes > 0
+        return true
+      })
+    }
+
+    if (dateFrom || dateTo) {
+      const fromDate = dateFrom ? new Date(dateFrom) : new Date('1970-01-01')
+      const toDate = dateTo ? new Date(dateTo + 'T23:59:59') : new Date()
+      
+      clients = clients.filter((c: any) => {
+        const created = new Date(c.createdAt)
+        return created >= fromDate && created <= toDate
+      })
+    }
+
+    const total = await prisma.customer.count({ where })
+
+    return { clients, total }
   } catch (error) {
     console.error('Error fetching clients:', error)
-    return []
+    return { clients: [], total: 0 }
   }
 }
 
-export default async function ClientsPage() {
-  const clients = await getClients()
+export default async function ClientsPage({ searchParams }: { searchParams: Promise<{ search?: string; page?: string; status?: string; dateFrom?: string; dateTo?: string }> }) {
+  const params = await searchParams
+  const search = params.search
+  const status = params.status
+  const dateFrom = params.dateFrom
+  const dateTo = params.dateTo
+  const page = parseInt(params.page || '1')
+  const pageSize = 10
+  
+  const { clients, total } = await getClients(search, page, pageSize, status, dateFrom, dateTo)
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary-900">Clientes</h1>
           <p className="text-primary-500 mt-1">
-            Gestiona tu cartera de clientes
+            Administra tus clientes
           </p>
         </div>
         <Button asChild className="gap-2">
@@ -77,128 +113,78 @@ export default async function ClientsPage() {
         </Button>
       </div>
 
-      {/* Search and Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary-400" />
-              <Input
-                placeholder="Buscar por nombre, email o RFC..."
-                className="pl-10"
-              />
-            </div>
-          </div>
+          <ClientSearch 
+            totalItems={total} 
+            pageSize={pageSize} 
+            placeholder="Buscar por nombre, email o teléfono..."
+            basePath="/clients"
+            showStatus={true}
+            showDates={true}
+          />
         </CardContent>
       </Card>
 
-      {/* Clients Grid */}
       {clients.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="h-20 w-20 bg-primary-100 rounded-full flex items-center justify-center mb-6">
-              <Users className="h-10 w-10 text-primary-700" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2 text-primary-900">No hay clientes registrados</h3>
-            <p className="text-primary-500 text-center max-w-md mb-6">
-              Comienza agregando tu primer cliente para empezar a gestionar tus cotizaciones y pedidos.
-            </p>
-            <Button asChild className="gap-2">
-              <Link href="/clients/new">
-                <Plus className="h-4 w-4" />
-                Crear primer cliente
-              </Link>
+            <Users className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground mb-4">No hay clientes todavía</p>
+            <Button asChild>
+              <Link href="/clients/new">Crear primer cliente</Link>
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-4">
           {clients.map((client: any) => (
-            <ClientCard key={client.id} client={client} />
+            <Card key={client.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="font-medium text-lg">{client.businessName}</span>
+                    </div>
+                    <div className="flex gap-4 text-sm text-muted-foreground">
+                      {client.email && (
+                        <span className="flex items-center gap-1">
+                          <Mail className="h-3 w-3" /> {client.email}
+                        </span>
+                      )}
+                      {client.phone && (
+                        <span className="flex items-center gap-1">
+                          <Phone className="h-3 w-3" /> {client.phone}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex gap-4 mt-2 text-sm">
+                      <span className="flex items-center gap-1">
+                        <FileText className="h-3 w-3" /> {client._count.quotes} cotizaciones
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Users className="h-3 w-3" /> {client._count.orders} pedidos
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link href={`/clients/${client.id}`}>
+                        <MoreVertical className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link href={`/clients/${client.id}/edit`}>
+                        <Edit className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
     </div>
-  )
-}
-
-function ClientCard({ client }: { client: any }) {
-  return (
-    <Card className="hover:shadow-lg transition-all duration-200 group">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg mb-1 text-primary-900">{client.name}</CardTitle>
-            {client.rfc && (
-              <CardDescription className="text-xs font-mono text-primary-500">
-                RFC: {client.rfc}
-              </CardDescription>
-            )}
-          </div>
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-              <Link href={`/clients/${client.id}/edit`}>
-                <Edit className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Contact Info */}
-        <div className="space-y-2">
-          {client.email && (
-            <div className="flex items-center gap-2 text-sm text-primary-500">
-              <Mail className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{client.email}</span>
-            </div>
-          )}
-          {client.phone && (
-            <div className="flex items-center gap-2 text-sm text-primary-500">
-              <Phone className="h-4 w-4 flex-shrink-0" />
-              <span>{client.phone}</span>
-            </div>
-          )}
-          {client.address && (
-            <div className="flex items-start gap-2 text-sm text-primary-500">
-              <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
-              <span className="line-clamp-2">{client.address}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 pt-4 border-t-2 border-primary-200">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 text-sm font-semibold text-action-600">
-              <FileText className="h-3 w-3" />
-              {client._count.quotes}
-            </div>
-            <div className="text-xs text-primary-500">Cotizaciones</div>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 text-sm font-semibold text-success-600">
-              <Package className="h-3 w-3" />
-              {client._count.orders}
-            </div>
-            <div className="text-xs text-primary-500">Pedidos</div>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 text-sm font-semibold text-primary-700">
-              <DollarSign className="h-3 w-3" />
-              {client._count.invoices}
-            </div>
-            <div className="text-xs text-primary-500">Facturas</div>
-          </div>
-        </div>
-
-        {/* View Details Button */}
-        <Button variant="outline" className="w-full gap-2" asChild>
-          <Link href={`/clients/${client.id}`}>
-            Ver detalles <ArrowRight className="h-4 w-4" />
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
   )
 }

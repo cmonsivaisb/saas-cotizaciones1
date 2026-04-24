@@ -17,7 +17,7 @@ export default function EditClientPage() {
   const [error, setError] = useState("")
   
   const [formData, setFormData] = useState({
-    name: "",
+    businessName: "",
     email: "",
     phone: "",
     address: "",
@@ -34,11 +34,11 @@ export default function EditClientPage() {
         }
         const data = await response.json()
         setFormData({
-          name: data.name || "",
+          businessName: data.businessName || "",
           email: data.email || "",
           phone: data.phone || "",
-          address: data.address || "",
-          rfc: data.rfc || "",
+          address: data.source || "",
+          rfc: data.rfc || data.notes || "",
           taxId: data.taxId || "",
         })
       } catch (err) {
@@ -148,13 +148,13 @@ export default function EditClientPage() {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nombre del cliente *</Label>
+                  <Label htmlFor="businessName">Nombre del cliente *</Label>
                   <Input
-                    id="name"
-                    name="name"
+                    id="businessName"
+                    name="businessName"
                     placeholder="Ej: Empresa ABC S.A. de C.V."
                     required
-                    value={formData.name}
+                    value={formData.businessName}
                     onChange={handleChange}
                   />
                 </div>

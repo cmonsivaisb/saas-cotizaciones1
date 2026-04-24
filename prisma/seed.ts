@@ -268,14 +268,14 @@ async function main() {
   const existingQuote = await prisma.quote.findFirst({
     where: {
       companyId: company.id,
-      folio: DEMO.quoteFolio,
+      customerId: customerA.id,
+      status: 'sent',
     },
   })
 
   const quoteBaseData = {
     companyId: company.id,
     customerId: customerA.id,
-    folio: DEMO.quoteFolio,
     quoteDate: now,
     validUntil: plus15Days,
     status: 'sent' as const,
@@ -327,7 +327,7 @@ async function main() {
           },
         },
       })
-  console.log('Quote ready:', quote.folio)
+  console.log('Quote ready:', quote.quoteNumber)
 
   const existingOrder = await prisma.order.findFirst({
     where: {

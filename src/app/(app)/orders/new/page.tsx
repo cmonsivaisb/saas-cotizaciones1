@@ -248,7 +248,7 @@ export default function NewOrderPage() {
                     <option value="">Seleccionar cotización...</option>
                     {quotes.map((quote) => (
                       <option key={quote.id} value={quote.id}>
-                        {quote.folio} - {quote.customer?.businessName} - ${quote.total.toLocaleString('es-MX')}
+                        {quote.quoteNumber} - {quote.customer?.businessName} - ${quote.total.toLocaleString('es-MX')}
                       </option>
                     ))}
                   </select>
