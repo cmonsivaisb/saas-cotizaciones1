@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ERROR_MESSAGES } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
+import { createNotification } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +40,14 @@ export async function POST(request: NextRequest) {
         taxId,
         companyId,
       },
+    })
+
+    await createNotification({
+      companyId,
+      type: 'client_created',
+      title: 'Nuevo cliente agregado',
+      message: `Se registró el cliente ${name}`,
+      link: `/clients/${customer.id}`,
     })
 
     return NextResponse.json(customer)

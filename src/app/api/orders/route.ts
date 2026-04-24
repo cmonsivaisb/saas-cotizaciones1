@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ERROR_MESSAGES } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
+import { createNotification } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,6 +52,14 @@ export async function POST(request: NextRequest) {
         customer: true,
         items: true,
       }
+    })
+
+    await createNotification({
+      companyId,
+      type: 'order_created',
+      title: 'Nuevo pedido creado',
+      message: `Se creó el pedido #${order.orderNumber} para ${order.customer.businessName} por $${order.total.toLocaleString('es-MX')}`,
+      link: `/orders/${order.id}`,
     })
 
     return NextResponse.json(order)

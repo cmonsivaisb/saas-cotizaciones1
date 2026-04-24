@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import {
   LayoutDashboard,
@@ -16,7 +16,13 @@ import {
   X,
   ChevronRight,
   Bell,
-  CreditCard
+  CreditCard,
+  Check,
+  CheckCheck,
+  FileTextIcon,
+  ShoppingCart,
+  UserPlus,
+  AlertTriangle
 } from "lucide-react"
 
 const navigation = [
@@ -32,11 +38,40 @@ const navigation = [
 
 const allowedWhenSuspended = ['/billing', '/billing/locked', '/subscription', '/settings']
 
+interface Notification {
+  id: string
+  type: string
+  title: string
+  message: string
+  link: string | null
+  isRead: boolean
+  createdAt: string
+}
+
+const notificationIcons: Record<string, React.ReactNode> = {
+  quote_created: <FileTextIcon className="h-4 w-4" />,
+  quote_updated: <FileTextIcon className="h-4 w-4" />,
+  quote_approved: <Check className="h-4 w-4" />,
+  quote_rejected: <X className="h-4 w-4" />,
+  order_created: <ShoppingCart className="h-4 w-4" />,
+  order_updated: <ShoppingCart className="h-4 w-4" />,
+  order_status_changed: <ShoppingCart className="h-4 w-4" />,
+  order_delivered: <Check className="h-4 w-4" />,
+  client_created: <UserPlus className="h-4 w-4" />,
+  client_updated: <Users className="h-4 w-4" />,
+  inventory_low_stock: <AlertTriangle className="h-4 w-4" />,
+  default: <Bell className="h-4 w-4" />
+}
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [userData, setUserData] = useState<{ name: string; email: string } | null>(null)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const notificationRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -49,6 +84,32 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       } catch (e) {}
     }
     fetchUser()
+  }, [])
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch('/api/notifications', { cache: 'no-store' })
+        if (res.ok) {
+          const data = await res.json()
+          setNotifications(data.notifications)
+          setUnreadCount(data.unreadCount)
+        }
+      } catch (e) {}
+    }
+    fetchNotifications()
+    const interval = setInterval(fetchNotifications, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   useEffect(() => {
@@ -100,6 +161,47 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Logout error:', error)
     }
+  }
+
+  const markAllAsRead = async () => {
+    try {
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'markAllRead' }),
+      })
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
+      setUnreadCount(0)
+    } catch (e) {}
+  }
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'markRead', notificationId }),
+      })
+      setNotifications(prev => prev.map(n => 
+        n.id === notificationId ? { ...n, isRead: true } : n
+      ))
+      setUnreadCount(prev => Math.max(0, prev - 1))
+      setShowNotifications(false)
+    } catch (e) {}
+  }
+
+  const formatTimeAgo = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+    
+    if (minutes < 1) return 'ahora'
+    if (minutes < 60) return `hace ${minutes}m`
+    if (hours < 24) return `hace ${hours}h`
+    return `hace ${days}d`
   }
 
   const displayName = userData?.name || 'Usuario'
@@ -200,10 +302,83 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="relative text-primary-700 hover:bg-primary-100">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 h-2 w-2 bg-danger-600 rounded-full" />
-              </Button>
+              {/* Notifications dropdown */}
+              <div className="relative" ref={notificationRef}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="relative text-primary-700 hover:bg-primary-100"
+                  onClick={() => setShowNotifications(!showNotifications)}
+                >
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 h-5 w-5 bg-danger-600 rounded-full text-xs text-white flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Button>
+
+                {showNotifications && (
+                  <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-primary-200 z-50">
+                    <div className="p-4 border-b border-primary-200 flex items-center justify-between">
+                      <h3 className="font-semibold text-primary-900">Notificaciones</h3>
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={markAllAsRead}
+                          className="text-xs text-action-600 hover:text-action-700 flex items-center gap-1"
+                        >
+                          <CheckCheck className="h-3 w-3" />
+                          Marcar todas leídas
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-8 text-center text-muted-foreground">
+                          <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">No hay notificaciones</p>
+                        </div>
+                      ) : (
+                        notifications.map((notification) => (
+                          <Link
+                            key={notification.id}
+                            href={notification.link || '#'}
+                            onClick={() => !notification.isRead && markAsRead(notification.id)}
+                            className={`block p-4 border-b border-primary-100 hover:bg-primary-50 transition-colors ${
+                              !notification.isRead ? 'bg-action-50/50' : ''
+                            }`}
+                          >
+                            <div className="flex gap-3">
+                              <div className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                !notification.isRead ? 'bg-action-100 text-action-600' : 'bg-primary-100 text-primary-600'
+                              }`}>
+                                {notificationIcons[notification.type] || notificationIcons.default}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className={`text-sm font-medium truncate ${notification.isRead ? 'text-primary-700' : 'text-primary-900'}`}>
+                                    {notification.title}
+                                  </p>
+                                  <span className="text-xs text-primary-500 whitespace-nowrap">
+                                    {formatTimeAgo(notification.createdAt)}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-primary-500 mt-1 line-clamp-2">
+                                  {notification.message}
+                                </p>
+                              </div>
+                              {!notification.isRead && (
+                                <div className="h-2 w-2 bg-action-600 rounded-full flex-shrink-0 mt-2" />
+                              )}
+                            </div>
+                          </Link>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="hidden sm:flex items-center gap-3 pl-3 border-l-2 border-primary-200">
                 <div className="h-9 w-9 bg-primary-100 rounded-full flex items-center justify-center">
                   <Users className="h-5 w-5 text-primary-700" />

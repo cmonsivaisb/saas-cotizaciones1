@@ -45,6 +45,7 @@ model Company {
   invoices           Invoice[]
   subscriptionInvoices SubscriptionInvoice[]
   items              Item[]
+  notifications     Notification[]
   orderPayments      OrderPayment[]
   orders             Order[]
   quotes             Quote[]
@@ -188,6 +189,21 @@ model ContactMessage {
   updatedAt DateTime              @updatedAt
 
   @@map("contact_messages")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  companyId String
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+  company   Company          @relation(fields: [companyId], references: [id])
+
+  @@map("notifications")
 }
 
 model Customer {
@@ -434,4 +450,24 @@ enum OrderStatus {
   partial_delivered
   delivered
   cancelled
+}
+
+enum NotificationType {
+  quote_created
+  quote_updated
+  quote_approved
+  quote_rejected
+  order_created
+  order_updated
+  order_status_changed
+  order_delivered
+  client_created
+  client_updated
+  invoice_created
+  invoice_paid
+  inventory_low_stock
+  subscription_new
+  subscription_renewed
+  subscription_suspended
+  system
 }

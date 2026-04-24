@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 import { ERROR_MESSAGES } from '@/lib/errors'
+import { createNotification } from '@/lib/notifications'
 
 export async function GET(
   request: NextRequest,
@@ -106,6 +107,16 @@ async function updateOrder(id: string, companyId: string, body: any) {
       }
     }
   })
+
+  if (body.status && body.status !== updatedOrder?.status) {
+    await createNotification({
+      companyId,
+      type: 'order_status_changed',
+      title: 'Estado del pedido actualizado',
+      message: `Pedido #${updatedOrder?.orderNumber} cambió a: ${body.status}`,
+      link: `/orders/${id}`,
+    })
+  }
 
   return updatedOrder
 }

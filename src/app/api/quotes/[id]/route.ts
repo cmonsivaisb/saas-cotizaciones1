@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 import { ERROR_MESSAGES } from '@/lib/errors'
+import { createNotification } from '@/lib/notifications'
 
 export async function GET(
   request: NextRequest,
@@ -128,6 +129,21 @@ export async function PATCH(
         }
       }
     })
+
+    if (body.status) {
+      const statusMessages: Record<string, string> = {
+        approved: 'Cotización aprobada',
+        rejected: 'Cotización rechazada',
+        sent: 'Cotización enviada',
+      }
+      await createNotification({
+        companyId,
+        type: body.status === 'approved' ? 'quote_approved' : body.status === 'rejected' ? 'quote_rejected' : 'quote_updated',
+        title: statusMessages[body.status] || 'Cotización actualizada',
+        message: `Cotización #${updatedQuote?.quoteNumber} cambió a: ${body.status}`,
+        link: `/quotes/${id}`,
+      })
+    }
 
     return NextResponse.json(updatedQuote)
   } catch (error) {

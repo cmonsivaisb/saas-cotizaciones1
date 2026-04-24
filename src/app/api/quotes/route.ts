@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ERROR_MESSAGES } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
+import { createNotification } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,6 +59,14 @@ export async function POST(request: NextRequest) {
         customer: true,
         items: true,
       }
+    })
+
+    await createNotification({
+      companyId,
+      type: 'quote_created',
+      title: 'Nueva cotización creada',
+      message: `Se creó la cotización #${quote.quoteNumber} para ${quote.customer.businessName} por $${quote.total.toLocaleString('es-MX')}`,
+      link: `/quotes/${quote.id}`,
     })
 
     return NextResponse.json(quote)
