@@ -14,7 +14,9 @@ import {
   Clock,
   XCircle,
   Download,
-  ExternalLink
+  ExternalLink,
+  Eye,
+  Pencil
 } from "lucide-react"
 import Link from "next/link"
 import ClientSearch from "@/components/client-search"
@@ -271,19 +273,20 @@ function InvoiceCard({ invoice }: { invoice: Invoice }) {
   
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-2" asChild>
+              <Link href={`/invoices/${invoice.id}`}>
+                <Eye className="h-4 w-4" />
+                Ver factura
+              </Link>
+            </Button>
             {invoice.order && (
-              <Button variant="outline" size="sm" className="gap-2" asChild>
+              <Button variant="ghost" size="sm" className="gap-2" asChild>
                 <Link href={`/orders/${invoice.order.id}`}>
-                  <FileText className="h-4 w-4" />
+                  <Pencil className="h-4 w-4" />
                   Ver pedido
                 </Link>
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
-              <Link href={`/invoices/${invoice.id}`}>
-                <ExternalLink className="h-4 w-4" />
-              </Link>
-            </Button>
           </div>
         </div>
       </CardContent>

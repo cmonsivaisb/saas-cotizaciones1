@@ -15,7 +15,9 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  FileText
+  FileText,
+  Eye,
+  Pencil
 } from "lucide-react"
 import Link from "next/link"
 import ClientSearch from "@/components/client-search"
@@ -173,7 +175,7 @@ function OrderCard({ order }: { order: any }) {
   const config = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending
   
   return (
-    <Card className="hover:shadow-lg transition-all duration-200 group">
+    <Card className="hover:shadow-lg transition-all duration-200">
       <CardContent className="p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           {/* Left: Client and Status */}
@@ -212,10 +214,17 @@ function OrderCard({ order }: { order: any }) {
           </div>
  
           {/* Right: Actions */}
-          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-2" asChild>
               <Link href={`/orders/${order.id}`}>
-                <Package className="h-4 w-4" />
+                <Eye className="h-4 w-4" />
+                Ver
+              </Link>
+            </Button>
+            <Button variant="ghost" size="sm" className="gap-2" asChild>
+              <Link href={`/orders/${order.id}/edit`}>
+                <Pencil className="h-4 w-4" />
+                Editar
               </Link>
             </Button>
           </div>

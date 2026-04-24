@@ -36,6 +36,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [userData, setUserData] = useState<{ name: string; email: string } | null>(null)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/auth/me')
+        if (res.ok) {
+          const data = await res.json()
+          setUserData({ name: data.name, email: data.email })
+        }
+      } catch (e) {}
+    }
+    fetchUser()
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -87,6 +101,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       console.error('Logout error:', error)
     }
   }
+
+  const displayName = userData?.name || 'Usuario'
+  const displayEmail = userData?.email || ''
 
   return (
     <div className="min-h-screen bg-primary-50">
@@ -150,8 +167,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Users className="h-5 w-5 text-primary-700" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate text-primary-900">Usuario Admin</p>
-                <p className="text-xs text-primary-500 truncate">admin@cotizanet.com</p>
+                <p className="text-sm font-medium truncate text-primary-900">{displayName}</p>
+                <p className="text-xs text-primary-500 truncate">{displayEmail}</p>
               </div>
             </div>
             <Button
@@ -192,8 +209,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <Users className="h-5 w-5 text-primary-700" />
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-primary-900">Admin</p>
-                  <p className="text-xs text-primary-500">admin@cotizanet.com</p>
+                  <p className="text-sm font-medium text-primary-900">{displayName}</p>
+                  <p className="text-xs text-primary-500">{displayEmail}</p>
                 </div>
               </div>
             </div>

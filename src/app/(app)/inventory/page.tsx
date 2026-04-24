@@ -11,10 +11,10 @@ import {
   AlertTriangle,
   ArrowRight,
   Edit,
-  Search
+  Search,
+  Pencil
 } from "lucide-react"
 import Link from "next/link"
-import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,7 +56,6 @@ async function getProducts(search?: string, page = 1, pageSize = 12) {
 }
 
 export default async function InventoryPage({ searchParams }: { searchParams: Promise<{ search?: string; page?: string }> }) {
-  revalidatePath('/inventory')
   const params = await searchParams
   const search = params.search
   const page = parseInt(params.page || '1')
@@ -162,10 +161,10 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
 
 function ProductCard({ product }: { product: any }) {
   const isLowStock = product.stockQuantity <= product.minimumStock
-  const stockPercentage = (product.stockQuantity / product.minimumStock) * 100
+  const stockPercentage = product.minimumStock > 0 ? Math.min((product.stockQuantity / product.minimumStock) * 100, 100) : (product.stockQuantity > 0 ? 100 : 0)
   
   return (
-    <Card className={`hover:shadow-lg transition-all duration-200 group ${isLowStock ? 'border-warning-200' : ''}`}>
+    <Card className={`hover:shadow-lg transition-all duration-200 ${isLowStock ? 'border-warning-200' : ''}`}>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -173,13 +172,6 @@ function ProductCard({ product }: { product: any }) {
             <CardDescription className="text-xs font-mono text-primary-500">
               SKU: {product.sku}
             </CardDescription>
-          </div>
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-              <Link href={`/inventory/${product.id}/edit`}>
-                <Edit className="h-4 w-4" />
-              </Link>
-            </Button>
           </div>
         </div>
       </CardHeader>
@@ -209,13 +201,23 @@ function ProductCard({ product }: { product: any }) {
           <div className="h-2 bg-primary-100 rounded-full overflow-hidden">
             <div 
               className={`h-full transition-all ${isLowStock ? 'bg-warning-500' : 'bg-success-500'}`}
-              style={{ width: `${Math.min(stockPercentage, 100)}%` }}
+              style={{ width: `${Math.max(0, Math.min(stockPercentage, 100))}%` }}
             />
           </div>
           <div className="flex items-center justify-between text-xs text-primary-500">
             <span>Mínimo: {product.minimumStock}</span>
             <span>{isLowStock ? 'Bajo stock' : 'Stock OK'}</span>
           </div>
+        </div>
+
+        {/* Edit Button */}
+        <div className="pt-2">
+          <Button variant="outline" size="sm" className="w-full gap-2" asChild>
+            <Link href={`/inventory/${product.id}/edit`}>
+              <Pencil className="h-4 w-4" />
+              Editar producto
+            </Link>
+          </Button>
         </div>
       </CardContent>
     </Card>

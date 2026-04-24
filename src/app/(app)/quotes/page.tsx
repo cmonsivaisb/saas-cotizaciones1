@@ -15,7 +15,8 @@ import {
   Send,
   CheckCircle,
   Clock,
-  XCircle
+  XCircle,
+  Pencil
 } from "lucide-react"
 import Link from "next/link"
 
@@ -153,14 +154,16 @@ export default async function QuotesPage({ searchParams }: { searchParams: Promi
                         ${quote.total.toLocaleString('es-MX')}
                       </p>
                       <div className="flex gap-2 mt-2">
-                        <Button variant="ghost" size="icon" asChild>
+                        <Button variant="outline" size="sm" className="gap-2" asChild>
                           <Link href={`/quotes/${quote.id}`}>
                             <Eye className="h-4 w-4" />
+                            Ver
                           </Link>
                         </Button>
-                        <Button variant="ghost" size="icon" asChild>
+                        <Button variant="ghost" size="sm" className="gap-2" asChild>
                           <Link href={`/quotes/${quote.id}/edit`}>
-                            <Edit className="h-4 w-4" />
+                            <Pencil className="h-4 w-4" />
+                            Editar
                           </Link>
                         </Button>
                       </div>

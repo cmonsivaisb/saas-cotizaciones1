@@ -13,7 +13,9 @@ import {
   FileText,
   Edit,
   Trash2,
-  MoreVertical
+  MoreVertical,
+  Eye,
+  Pencil
 } from "lucide-react"
 import Link from "next/link"
 
@@ -168,14 +170,16 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" asChild>
+                    <Button variant="outline" size="sm" className="gap-2" asChild>
                       <Link href={`/clients/${client.id}`}>
-                        <MoreVertical className="h-4 w-4" />
+                        <Eye className="h-4 w-4" />
+                        Ver
                       </Link>
                     </Button>
-                    <Button variant="ghost" size="icon" asChild>
+                    <Button variant="ghost" size="sm" className="gap-2" asChild>
                       <Link href={`/clients/${client.id}/edit`}>
-                        <Edit className="h-4 w-4" />
+                        <Pencil className="h-4 w-4" />
+                        Editar
                       </Link>
                     </Button>
                   </div>
