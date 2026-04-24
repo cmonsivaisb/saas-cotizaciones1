@@ -56,7 +56,7 @@ export async function GET(
 }
 
 async function updateOrder(id: string, companyId: string, body: any) {
-  const { customerId, items, total, notes, dueDate, status } = body
+  const { customerId, items, total, notes, dueDate, status, reference } = body
 
   // Delete existing items
   await prisma.orderItem.deleteMany({
@@ -73,6 +73,7 @@ async function updateOrder(id: string, companyId: string, body: any) {
       customerId,
       total,
       notes,
+      quickReference: reference || null,
       dueDate: dueDate ? new Date(dueDate) : undefined,
       status: status || 'pending',
     },

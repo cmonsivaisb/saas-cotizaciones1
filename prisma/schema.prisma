@@ -88,19 +88,21 @@ model Subscription {
 }
 
 model Invoice {
-  id         String        @id @default(cuid())
-  companyId  String
-  orderId    String?
-  concept    String
-  amountMxn  Float
-  currency   String        @default("MXN")
-  status     InvoiceStatus @default(pending)
-  dueAt      DateTime
-  paidAt     DateTime?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  company    Company       @relation(fields: [companyId], references: [id])
-  order      Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  id            String         @id @default(cuid())
+  invoiceNumber Int            @default(autoincrement()) @unique
+  companyId    String
+  orderId      String?
+  concept      String
+  amountMxn    Float
+  currency     String         @default("MXN")
+  status       InvoiceStatus  @default(pending)
+  dueAt        DateTime
+  paidAt       DateTime?
+  quickReference String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  company      Company        @relation(fields: [companyId], references: [id])
+  order        Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@map("invoices")
 }
@@ -268,19 +270,20 @@ model InventoryMovement {
 }
 
 model Quote {
-  id          String      @id @default(cuid())
-  quoteNumber Int         @default(autoincrement()) @unique
-  companyId   String
-  customerId  String
-  quoteDate   DateTime    @default(now())
-  validUntil DateTime
-  status     QuoteStatus @default(draft)
-  subtotal   Float
-  total      Float
-  notes      String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  followUps  FollowUp[]
+  id            String      @id @default(cuid())
+  quoteNumber   Int         @default(autoincrement()) @unique
+  companyId    String
+  customerId   String
+  quoteDate    DateTime    @default(now())
+  validUntil   DateTime
+  status      QuoteStatus  @default(draft)
+  subtotal     Float
+  total       Float
+  quickReference String?
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  followUps   FollowUp[]
   orders     Order[]
   items      QuoteItem[]
   company    Company     @relation(fields: [companyId], references: [id])
@@ -320,25 +323,26 @@ model FollowUp {
 }
 
 model Order {
-  id          String         @id @default(cuid())
-  orderNumber Int            @default(autoincrement()) @unique
-  companyId   String
-  customerId  String
-  quoteId     String?
-  orderDate   DateTime       @default(now())
-  dueDate    DateTime?
-  status     OrderStatus    @default(pending)
-  subtotal   Float
-  total      Float
-  notes      String?
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-  invoices   Invoice[]
-  items      OrderItem[]
-  payments   OrderPayment[]
-  company    Company        @relation(fields: [companyId], references: [id])
-  customer   Customer       @relation(fields: [customerId], references: [id])
-  quote      Quote?         @relation(fields: [quoteId], references: [id])
+  id              String         @id @default(cuid())
+  orderNumber     Int            @default(autoincrement()) @unique
+  companyId      String
+  customerId     String
+  quoteId        String?
+  orderDate      DateTime       @default(now())
+  dueDate        DateTime?
+  status        OrderStatus    @default(pending)
+  subtotal       Float
+  total         Float
+  quickReference String?
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  invoices      Invoice[]
+  items         OrderItem[]
+  payments      OrderPayment[]
+  company       Company        @relation(fields: [companyId], references: [id])
+  customer      Customer       @relation(fields: [customerId], references: [id])
+  quote         Quote?         @relation(fields: [quoteId], references: [id])
 
   @@map("orders")
 }

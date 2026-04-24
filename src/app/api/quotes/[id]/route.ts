@@ -75,7 +75,7 @@ export async function PATCH(
     const { companyId } = sessionData
 
     const body = await request.json()
-    const { customerId, items, total, notes, validUntil, status } = body
+    const { customerId, items, total, notes, validUntil, status, reference } = body
 
     // Delete existing items
     await prisma.quoteItem.deleteMany({
@@ -92,6 +92,7 @@ export async function PATCH(
         customerId,
         total,
         notes,
+        quickReference: reference || null,
         validUntil: validUntil ? new Date(validUntil) : undefined,
         status: status || 'draft',
       },

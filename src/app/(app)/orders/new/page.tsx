@@ -29,6 +29,7 @@ export default function NewOrderPage() {
   
   const [formData, setFormData] = useState({
     customerId: "",
+    reference: "",
     quoteId: "",
     dueDate: "",
     notes: "",
@@ -252,6 +253,26 @@ export default function NewOrderPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Reference */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Referencia</CardTitle>
+                <CardDescription>Identificador rápido para este pedido</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="reference">Referencia</Label>
+                  <Input
+                    id="reference"
+                    name="reference"
+                    value={formData.reference}
+                    onChange={handleChange}
+                    placeholder="Ej: Pedido urgente, cliente VIP..."
+                  />
                 </div>
               </CardContent>
             </Card>

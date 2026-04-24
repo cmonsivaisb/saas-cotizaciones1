@@ -110,7 +110,9 @@ function InvoiceCard({ invoice }: { invoice: any }) {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
-                  <h3 className="text-lg font-semibold text-primary-900">{invoice.concept}</h3>
+                  <h3 className="text-lg font-semibold text-primary-900">
+                    #{invoice.invoiceNumber}{invoice.quickReference ? ` - ${invoice.quickReference}` : ''}
+                  </h3>
                   <InvoiceStatusBadge status={invoice.status} />
                 </div>
                 <div className="flex items-center gap-2 text-sm text-primary-500">

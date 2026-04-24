@@ -138,7 +138,7 @@ export default async function QuotesPage({ searchParams }: { searchParams: Promi
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="font-medium text-lg">
-                          #{quote.id.slice(-6)}
+                          #{quote.quoteNumber}{quote.quickReference ? ` - ${quote.quickReference}` : ''}
                         </span>
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
                           {config.label}

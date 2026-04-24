@@ -192,7 +192,7 @@ function OrderCard({ order }: { order: any }) {
                     {config.label}
                   </Badge>
                   <span className="text-sm text-primary-500">
-                    #{order.id}
+                    #{order.orderNumber}{order.quickReference ? ` - ${order.quickReference}` : ''}
                   </span>
                 </div>
               </div>

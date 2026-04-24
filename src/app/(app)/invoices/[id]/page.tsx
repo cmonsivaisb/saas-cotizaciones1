@@ -110,10 +110,8 @@ export default async function InvoiceDetailPage({
               Detalles de la factura
               {isFromOrder && (
                 <span className="ml-2 text-sm">
-                  <Badge variant="outline" className="gap-1">
-                    <ExternalLink className="h-3 w-3" />
-                    Generada desde pedido
-                  </Badge>
+                  <ExternalLink className="h-3 w-3" />
+                  Generada desde pedido
                 </span>
               )}
             </p>
@@ -276,7 +274,10 @@ export default async function InvoiceDetailPage({
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-primary-900">Pedido #{invoice.order.id.slice(0, 8)}</p>
+                <p className="font-semibold text-primary-900">Pedido #{invoice.order.orderNumber}</p>
+                {invoice.order.quickReference && (
+                  <p className="text-sm text-primary-500">{invoice.order.quickReference}</p>
+                )}
                 <p className="text-sm text-primary-500">
                   Total: ${invoice.order.total.toLocaleString('es-MX')}
                 </p>
@@ -310,7 +311,7 @@ export default async function InvoiceDetailPage({
               <Button variant="outline" asChild>
                 <Link href={`/quotes/${invoice.order.quote.id}`}>
                   Ver cotizacion
-                </Link>
+</Link>
               </Button>
             </div>
           </CardContent>

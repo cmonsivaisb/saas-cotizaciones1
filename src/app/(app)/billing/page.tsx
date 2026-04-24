@@ -255,7 +255,7 @@ function InvoiceCard({ invoice }: { invoice: Invoice }) {
                 <span>Vence: {new Date(invoice.dueAt).toLocaleDateString('es-MX')}</span>
               </div>
             </div>
-            <div className="text-right">
+<div className="text-right">
               <div className="flex items-center gap-1 text-2xl font-bold text-primary-900">
                 <DollarSign className="h-5 w-5" />
                 {invoice.amountMxn.toLocaleString('es-MX')}
@@ -270,24 +270,24 @@ function InvoiceCard({ invoice }: { invoice: Invoice }) {
               </div>
             </div>
           </div>
-  
-          {/* Right: Actions */}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2" asChild>
-              <Link href={`/invoices/${invoice.id}`}>
-                <Eye className="h-4 w-4" />
-                Ver factura
-              </Link>
+        </div>
+   
+        {/* Bottom: Actions */}
+        <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+          <Button variant="outline" size="sm" className="gap-2" asChild>
+            <Link href={`/invoices/${invoice.id}`}>
+              <Eye className="h-4 w-4" />
+              Ver factura
+            </Link>
+          </Button>
+          {invoice.order && (
+            <Button variant="ghost" size="sm" className="gap-2" asChild>
+              <Link href={`/orders/${invoice.order.id}`}>
+                <Pencil className="h-4 w-4" />
+                Ver pedido
+</Link>
             </Button>
-            {invoice.order && (
-              <Button variant="ghost" size="sm" className="gap-2" asChild>
-                <Link href={`/orders/${invoice.order.id}`}>
-                  <Pencil className="h-4 w-4" />
-                  Ver pedido
-                </Link>
-              </Button>
-            )}
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>

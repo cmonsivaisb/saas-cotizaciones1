@@ -29,6 +29,7 @@ export default function NewQuotePage() {
   
   const [formData, setFormData] = useState({
     customerId: "",
+    reference: "",
     notes: "",
     validUntil: "",
   })
@@ -200,6 +201,26 @@ export default function NewQuotePage() {
                       </option>
                     ))}
                   </select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Reference */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Referencia</CardTitle>
+                <CardDescription>Identificador rápido para esta cotización</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="reference">Referencia</Label>
+                  <Input
+                    id="reference"
+                    name="reference"
+                    value={formData.reference}
+                    onChange={handleChange}
+                    placeholder="Ej: Pedido urgente, cliente VIP..."
+                  />
                 </div>
               </CardContent>
             </Card>

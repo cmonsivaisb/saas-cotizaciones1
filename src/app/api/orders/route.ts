@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const { companyId } = sessionData
 
     const body = await request.json()
-    const { clientId, items, total, notes, deliveryDate, status } = body
+    const { clientId, items, total, notes, deliveryDate, status, reference } = body
 
     if (!clientId || !items || items.length === 0) {
       return NextResponse.json(
@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
         subtotal: total,
         total,
         notes,
+        quickReference: reference || null,
         dueDate: deliveryDate ? new Date(deliveryDate) : null,
         status: status || 'pending',
         items: {

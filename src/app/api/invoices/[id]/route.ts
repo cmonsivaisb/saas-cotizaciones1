@@ -76,7 +76,7 @@ export async function PATCH(
     const { companyId } = sessionData
 
     const body = await request.json()
-    const { concept, amountMxn, currency, status, dueAt, paidAt } = body
+    const { concept, amountMxn, currency, status, dueAt, paidAt, reference } = body
 
     // Update invoice
     const invoice = await prisma.invoice.updateMany({
@@ -89,6 +89,7 @@ export async function PATCH(
         amountMxn,
         currency,
         status,
+        quickReference: reference || null,
         dueAt: dueAt ? new Date(dueAt) : undefined,
         paidAt: paidAt ? new Date(paidAt) : null,
       },

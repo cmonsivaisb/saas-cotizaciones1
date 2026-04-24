@@ -29,6 +29,7 @@ export default function EditOrderPage() {
   
   const [formData, setFormData] = useState({
     customerId: "",
+    reference: "",
     dueDate: "",
     notes: "",
     status: "pending",
@@ -51,6 +52,7 @@ export default function EditOrderPage() {
           const order = await orderRes.json()
           setFormData({
             customerId: order.customerId,
+            reference: order.quickReference || '',
             dueDate: order.dueDate ? new Date(order.dueDate).toISOString().split('T')[0] : '',
             notes: order.notes || '',
             status: order.status,
@@ -201,6 +203,26 @@ export default function EditOrderPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Reference */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Referencia</CardTitle>
+                <CardDescription>Identificador rápido para este pedido</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="reference">Referencia</Label>
+                  <Input
+                    id="reference"
+                    name="reference"
+                    value={formData.reference}
+                    onChange={handleChange}
+                    placeholder="Ej: Pedido urgente, cliente VIP..."
+                  />
                 </div>
               </CardContent>
             </Card>
