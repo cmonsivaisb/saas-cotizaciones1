@@ -1,7 +1,12 @@
+"use client"
+
 import Link from "next/link"
-import { ArrowRight, CheckCircle2, FileText, Package, Receipt, Send } from "lucide-react"
+import { useState } from "react"
+import { ArrowRight, CheckCircle2, FileText, Package, Receipt, Send, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+const STORAGE_KEY = "cotizanet-quote-lifecycle-guide-hidden"
 
 const steps = [
   { title: "Cliente", description: "Elige o registra a quien vas a vender.", icon: CheckCircle2 },
@@ -11,23 +16,50 @@ const steps = [
   { title: "Cobranza", description: "Registra pagos y revisa saldos pendientes.", icon: Receipt },
 ]
 
-export function QuoteLifecycleGuide({ compact = false }: { compact?: boolean }) {
+export function QuoteLifecycleGuide({
+  compact = false,
+  dismissible = true,
+}: {
+  compact?: boolean
+  dismissible?: boolean
+}) {
+  const [isHidden, setIsHidden] = useState(() => {
+    if (!dismissible || typeof window === "undefined") return false
+    return localStorage.getItem(STORAGE_KEY) === "true"
+  })
+
+  const hideGuide = () => {
+    localStorage.setItem(STORAGE_KEY, "true")
+    setIsHidden(true)
+  }
+
+  if (isHidden) {
+    return null
+  }
+
   return (
     <Card className="border-action-200 bg-action-50/40">
       <CardHeader>
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <CardTitle>Flujo recomendado</CardTitle>
             <CardDescription>
               Sigue estos pasos para pasar de una cotizacion a pedido y cobranza sin perder informacion.
             </CardDescription>
           </div>
-          <Button asChild variant="outline">
-            <Link href="/help">
-              Ver guia completa
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link href="/help">
+                Ver guia completa
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            {dismissible && (
+              <Button type="button" variant="ghost" size="icon" onClick={hideGuide} aria-label="Ocultar flujo recomendado">
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>

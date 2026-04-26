@@ -73,7 +73,7 @@ export default function HelpPage() {
         </div>
       </section>
 
-      <QuoteLifecycleGuide compact />
+      <QuoteLifecycleGuide compact dismissible={false} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {guides.map((guide) => (
