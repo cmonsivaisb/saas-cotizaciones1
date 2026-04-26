@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -65,16 +66,16 @@ export default function ContactPage() {
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild>
-              <a href="/">Inicio</a>
+              <Link href="/">Inicio</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <a href="/terms">Términos</a>
+              <Link href="/terms">Términos</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <a href="/privacy">Privacidad</a>
+              <Link href="/privacy">Privacidad</Link>
             </Button>
             <Button size="sm" asChild>
-              <a href="/register">Comenzar gratis</a>
+              <Link href="/register">Comenzar gratis</Link>
             </Button>
           </div>
         </div>
@@ -233,9 +234,9 @@ export default function ContactPage() {
                 </CardHeader>
                 <CardContent>
                   <Button className="w-full" variant="outline" asChild>
-                    <a href="/demo">
+                    <Link href="/demo">
                       Solicitar demo gratuita
-                    </a>
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>

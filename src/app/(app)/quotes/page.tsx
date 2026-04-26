@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import ClientSearch from "@/components/client-search"
+import { QuoteLifecycleGuide } from "@/components/quote-lifecycle-guide"
 import {
   FileText,
   Plus,
@@ -102,6 +103,8 @@ export default async function QuotesPage({ searchParams }: { searchParams: Promi
           </Link>
         </Button>
       </div>
+
+      <QuoteLifecycleGuide compact />
 
       <Card>
         <CardContent className="pt-6">

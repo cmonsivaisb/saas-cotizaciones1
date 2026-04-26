@@ -29,6 +29,7 @@ const adminRoutes = [
 const allowedWhenSuspended = [
   '/billing',
   '/billing/locked',
+  '/help',
   '/subscription',
   '/settings',
   '/api/billing',

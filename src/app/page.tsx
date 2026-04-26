@@ -430,7 +430,8 @@ export default async function HomePage() {
                 "Productos ilimitados",
                 "Cotizaciones ilimitadas",
                 "Pedidos ilimitados",
-                "Reportes completos",
+                "Reportes de ventas, cobranza e inventario",
+                "Alertas de stock bajo",
                 "Soporte prioritario",
               ]}
               cta="Comenzar gratis"

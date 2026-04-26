@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Save, Plus, Trash2, Send } from "lucide-react"
 import Link from "next/link"
+import { QuoteLifecycleGuide } from "@/components/quote-lifecycle-guide"
 
 interface QuoteItem {
   productId: string
@@ -168,7 +169,8 @@ export default function NewQuotePage() {
         </div>
       </div>
 
-      <div className="max-w-4xl">
+      <div className="max-w-4xl space-y-6">
+        <QuoteLifecycleGuide compact />
         <form onSubmit={(e) => handleSubmit(e, false)}>
           {error && (
             <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-6">
@@ -184,6 +186,14 @@ export default function NewQuotePage() {
                 <CardDescription>Selecciona el cliente para esta cotización</CardDescription>
               </CardHeader>
               <CardContent>
+                {clients.length === 0 && (
+                  <div className="mb-4 rounded-lg border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">
+                    Primero necesitas registrar un cliente.{" "}
+                    <Link href="/clients/new" className="font-semibold underline">
+                      Crear cliente
+                    </Link>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="customerId">Cliente *</Label>
                   <select
@@ -240,6 +250,14 @@ export default function NewQuotePage() {
                 </div>
               </CardHeader>
               <CardContent>
+                {products.length === 0 && (
+                  <div className="mb-4 rounded-lg border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">
+                    Puedes cotizar capturando precio manual, pero es mas rapido si registras tus productos.{" "}
+                    <Link href="/inventory/new" className="font-semibold underline">
+                      Agregar producto
+                    </Link>
+                  </div>
+                )}
                 {items.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <p>No hay items agregados</p>

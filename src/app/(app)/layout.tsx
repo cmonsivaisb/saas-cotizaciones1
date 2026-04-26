@@ -22,19 +22,44 @@ import {
   FileTextIcon,
   ShoppingCart,
   UserPlus,
-  AlertTriangle
+  AlertTriangle,
+  BarChart3,
+  HelpCircle
 } from "lucide-react"
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Inicio', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Clientes', href: '/clients', icon: Users },
   { name: 'Cotizaciones', href: '/quotes', icon: FileText },
   { name: 'Pedidos', href: '/orders', icon: Package },
-  { name: 'Facturación', href: '/billing', icon: DollarSign },
+  { name: 'Reportes', href: '/reports', icon: BarChart3 },
+  { name: 'Cobranza', href: '/billing', icon: DollarSign },
   { name: 'Inventario', href: '/inventory', icon: Package },
-  { name: 'Suscripción', href: '/subscription', icon: CreditCard },
-  { name: 'Configuración', href: '/settings', icon: Settings },
+  { name: 'Ayuda', href: '/help', icon: HelpCircle },
+  { name: 'Mi plan', href: '/subscription', icon: CreditCard },
+  { name: 'Ajustes', href: '/settings', icon: Settings },
 ]
+
+const pageTitles: Record<string, { title: string; description: string }> = {
+  '/dashboard': { title: 'Inicio', description: 'Resumen del negocio y accesos rapidos.' },
+  '/clients': { title: 'Clientes', description: 'Personas y empresas a las que vendes.' },
+  '/quotes': { title: 'Cotizaciones', description: 'Propuestas listas para enviar y convertir en pedido.' },
+  '/orders': { title: 'Pedidos', description: 'Trabajo confirmado, entregas y seguimiento.' },
+  '/reports': { title: 'Reportes', description: 'Ventas, cobranza, conversion e inventario critico.' },
+  '/billing': { title: 'Cobranza', description: 'Facturas, pagos pendientes y estado de cuenta.' },
+  '/inventory': { title: 'Inventario', description: 'Productos, precios y stock disponible.' },
+  '/help': { title: 'Ayuda', description: 'Guias paso a paso para usar CotizaNet.' },
+  '/subscription': { title: 'Mi plan', description: 'Estado de suscripcion y pagos del servicio.' },
+  '/settings': { title: 'Ajustes', description: 'Datos de empresa y preferencias basicas.' },
+}
+
+function getPageInfo(pathname: string) {
+  const match = Object.keys(pageTitles)
+    .sort((a, b) => b.length - a.length)
+    .find((path) => pathname === path || pathname.startsWith(path + '/'))
+
+  return match ? pageTitles[match] : pageTitles['/dashboard']
+}
 
 const allowedWhenSuspended = ['/billing', '/billing/locked', '/subscription', '/settings']
 
@@ -206,9 +231,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const displayName = userData?.name || 'Usuario'
   const displayEmail = userData?.email || ''
+  const pageInfo = getPageInfo(pathname)
 
   return (
     <div className="min-h-screen bg-primary-50">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-action-600 focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Saltar al contenido
+      </a>
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -231,12 +263,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-tight text-primary-900">CotizaNet</h1>
-              <p className="text-xs text-primary-500">Gestión para PyMEs</p>
+              <p className="text-xs text-primary-500">Gestion para PyMEs</p>
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto" aria-label="Navegacion principal">
             {navigation.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
               return (
@@ -244,7 +276,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   key={item.name}
                   href={item.href}
                   className={`
-                    flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                    flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-all duration-200
                     ${isActive 
                       ? 'bg-action-600 text-white shadow-md' 
                       : 'text-primary-700 hover:bg-primary-100'
@@ -279,7 +311,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClick={handleLogout}
             >
               <LogOut className="h-4 w-4 mr-3" />
-              Cerrar sesión
+              Cerrar sesion
             </Button>
           </div>
         </div>
@@ -296,9 +328,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 size="icon"
                 className="lg:hidden"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
+                aria-label="Abrir menu"
               >
                 {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </Button>              
+              </Button>
+              <div>
+                <h2 className="text-lg font-bold text-primary-900">{pageInfo.title}</h2>
+                <p className="hidden text-sm text-primary-500 sm:block">{pageInfo.description}</p>
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
@@ -309,6 +346,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   size="icon" 
                   className="relative text-primary-700 hover:bg-primary-100"
                   onClick={() => setShowNotifications(!showNotifications)}
+                  aria-label="Ver notificaciones"
                 >
                   <Bell className="h-5 w-5" />
                   {unreadCount > 0 && (
@@ -319,24 +357,33 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </Button>
 
                 {showNotifications && (
-                  <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-primary-200 z-50">
-                    <div className="p-4 border-b border-primary-200 flex items-center justify-between">
-                      <h3 className="font-semibold text-primary-900">Notificaciones</h3>
-                      {unreadCount > 0 && (
-                        <button 
-                          onClick={markAllAsRead}
-                          className="text-xs text-action-600 hover:text-action-700 flex items-center gap-1"
-                        >
-                          <CheckCheck className="h-3 w-3" />
-                          Marcar todas leídas
-                        </button>
-                      )}
+                  <div className="absolute right-0 top-full mt-2 w-[22rem] max-w-[calc(100vw-2rem)] bg-white rounded-lg shadow-lg border border-primary-200 z-50">
+                    <div className="p-4 border-b border-primary-200">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold text-primary-900">Avisos importantes</h3>
+                          <p className="text-xs text-primary-500">Tareas, cambios y recordatorios del negocio.</p>
+                        </div>
+                        {unreadCount > 0 && (
+                          <button 
+                            onClick={markAllAsRead}
+                            className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-action-700 hover:bg-action-50"
+                          >
+                            <CheckCheck className="h-3 w-3" />
+                            Marcar leidas
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <div className="max-h-96 overflow-y-auto">
                       {notifications.length === 0 ? (
-                        <div className="p-8 text-center text-muted-foreground">
-                          <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          <p className="text-sm">No hay notificaciones</p>
+                        <div className="p-8 text-center text-primary-500">
+                          <Bell className="h-8 w-8 mx-auto mb-3 opacity-50" />
+                          <p className="font-semibold text-primary-900">Todo esta al dia</p>
+                          <p className="mt-1 text-sm">Aqui veras avisos de cotizaciones, pedidos, pagos e inventario.</p>
+                          <Button asChild variant="outline" size="sm" className="mt-4">
+                            <Link href="/help">Ver ayuda</Link>
+                          </Button>
                         </div>
                       ) : (
                         notifications.map((notification) => (
@@ -375,6 +422,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         ))
                       )}
                     </div>
+                    {notifications.length > 0 && (
+                      <div className="border-t border-primary-200 p-3">
+                        <Button asChild variant="ghost" className="w-full justify-center">
+                          <Link href="/help">Necesito ayuda para entender estos avisos</Link>
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -393,7 +447,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Page content */}
-        <main className="min-h-[calc(100vh-73px)]">
+        <main id="main-content" className="min-h-[calc(100vh-73px)]" tabIndex={-1}>
           <div className="p-4 lg:p-8">
             {children}
           </div>

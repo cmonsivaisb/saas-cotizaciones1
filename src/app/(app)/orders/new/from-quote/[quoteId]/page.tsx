@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { AlertError } from "@/components/alert-message"
+import { QuoteLifecycleGuide } from "@/components/quote-lifecycle-guide"
 
 export default function NewOrderFromQuotePage({ params }: { params: Promise<{ quoteId: string }> }) {
   const router = useRouter()
@@ -115,11 +116,12 @@ export default function NewOrderFromQuotePage({ params }: { params: Promise<{ qu
   if (!quoteData) return <div className="p-10"><h2>Cotización no encontrada</h2><Link href="/quotes">Volver</Link></div>
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl space-y-6">
       <div className="mb-6 flex items-center gap-4">
         <Button variant="ghost" asChild><Link href={`/quotes/${quoteData.id}`}><ArrowLeft /></Link></Button>
         <div><h1 className="text-2xl font-bold">Crear pedido</h1><p className="text-muted-foreground">Desde cotización #{quoteData.id.slice(-6)}</p></div>
       </div>
+      <QuoteLifecycleGuide compact />
       {error && <AlertError message={error} />}
       <Card className="mb-6"><CardHeader><CardTitle>Cliente</CardTitle></CardHeader><CardContent><p className="font-medium">{quoteData.customer?.businessName}</p></CardContent></Card>
       <Card className="mb-6">

@@ -1,3 +1,7 @@
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -5,6 +9,50 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FileText, Calendar, CheckCircle2, ArrowRight } from "lucide-react"
 
 export default function DemoPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setSuccess(false)
+    setError("")
+
+    const form = event.currentTarget
+    const formData = new FormData(form)
+    const message = [
+      formData.get("message"),
+      `Empleados: ${formData.get("employees") || "No especificado"}`,
+      `Fecha preferida: ${formData.get("preferredDate") || "No especificada"}`,
+      `Horario preferido: ${formData.get("preferredTime") || "No especificado"}`,
+    ].filter(Boolean).join("\n")
+
+    const response = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.get("name"),
+        businessName: formData.get("company"),
+        email: formData.get("email"),
+        phone: formData.get("phone"),
+        businessType: formData.get("businessType"),
+        message,
+        source: "Demo",
+      }),
+    })
+
+    setIsSubmitting(false)
+
+    if (!response.ok) {
+      setError("No pudimos registrar tu solicitud. Revisa los datos e intenta de nuevo.")
+      return
+    }
+
+    form.reset()
+    setSuccess(true)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -18,16 +66,16 @@ export default function DemoPage() {
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild>
-              <a href="/">Inicio</a>
+              <Link href="/">Inicio</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <a href="/terms">Términos</a>
+              <Link href="/terms">Términos</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <a href="/privacy">Privacidad</a>
+              <Link href="/privacy">Privacidad</Link>
             </Button>
             <Button size="sm" asChild>
-              <a href="/register">Comenzar gratis</a>
+              <Link href="/register">Comenzar gratis</Link>
             </Button>
           </div>
         </div>
@@ -52,12 +100,23 @@ export default function DemoPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                {success && (
+                  <div className="rounded-lg border border-success-200 bg-success-50 p-4 text-sm font-medium text-success-800">
+                    Solicitud recibida. Te contactaremos para agendar la demo.
+                  </div>
+                )}
+                {error && (
+                  <div className="rounded-lg border border-danger-200 bg-danger-50 p-4 text-sm font-medium text-danger-800">
+                    {error}
+                  </div>
+                )}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Nombre completo</Label>
                     <Input
                       id="name"
+                      name="name"
                       placeholder="Juan Pérez"
                       required
                     />
@@ -66,6 +125,7 @@ export default function DemoPage() {
                     <Label htmlFor="email">Correo electrónico</Label>
                     <Input
                       id="email"
+                      name="email"
                       type="email"
                       placeholder="juan@empresa.com"
                       required
@@ -78,6 +138,7 @@ export default function DemoPage() {
                     <Label htmlFor="phone">Teléfono</Label>
                     <Input
                       id="phone"
+                      name="phone"
                       type="tel"
                       placeholder="+52 55 1234 5678"
                       required
@@ -87,6 +148,7 @@ export default function DemoPage() {
                     <Label htmlFor="company">Empresa</Label>
                     <Input
                       id="company"
+                      name="company"
                       placeholder="Taller Industrial Pérez"
                       required
                     />
@@ -97,6 +159,7 @@ export default function DemoPage() {
                   <Label htmlFor="businessType">Tipo de negocio</Label>
                   <select
                     id="businessType"
+                    name="businessType"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                     required
                   >
@@ -115,6 +178,7 @@ export default function DemoPage() {
                   <Label htmlFor="employees">Número de empleados</Label>
                   <select
                     id="employees"
+                    name="employees"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                     required
                   >
@@ -131,6 +195,7 @@ export default function DemoPage() {
                   <Label htmlFor="message">¿Qué te gustaría ver en la demo?</Label>
                   <textarea
                     id="message"
+                    name="message"
                     className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                     placeholder="Cuéntanos sobre tus necesidades específicas..."
                     required
@@ -141,6 +206,7 @@ export default function DemoPage() {
                   <Label htmlFor="preferredDate">Fecha preferida</Label>
                   <Input
                     id="preferredDate"
+                    name="preferredDate"
                     type="date"
                     required
                   />
@@ -150,6 +216,7 @@ export default function DemoPage() {
                   <Label htmlFor="preferredTime">Horario preferido</Label>
                   <select
                     id="preferredTime"
+                    name="preferredTime"
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                     required
                   >
@@ -166,8 +233,8 @@ export default function DemoPage() {
                   </select>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg">
-                  Solicitar demo
+                <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                  {isSubmitting ? "Enviando..." : "Solicitar demo"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </form>

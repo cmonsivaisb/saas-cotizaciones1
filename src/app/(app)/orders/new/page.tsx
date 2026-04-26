@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { QuoteLifecycleGuide } from "@/components/quote-lifecycle-guide"
 
 interface OrderItem {
   productId: string
@@ -193,7 +194,8 @@ export default function NewOrderPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl">
+      <div className="max-w-4xl space-y-6">
+        <QuoteLifecycleGuide compact />
         <form onSubmit={handleSubmit}>
           {error && (
             <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-6">

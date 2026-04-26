@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { DashboardOnboarding } from "@/components/dashboard-onboarding"
 import {
   FileText,
   Package,
@@ -16,7 +17,8 @@ import {
   CheckCircle,
   AlertTriangle,
   ArrowUpRight,
-  Calendar
+  Calendar,
+  BarChart3
 } from "lucide-react"
 import Link from "next/link"
 
@@ -141,17 +143,31 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-action-600 to-action-700 rounded-2xl p-8 shadow-lg">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2 text-white">
+      <div className="rounded-xl border-2 border-action-200 bg-gradient-to-r from-action-600 to-action-700 p-6 shadow-md">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="mb-2 text-sm font-semibold text-action-100">Panel principal</p>
+            <h1 className="text-3xl font-bold mb-2 text-white">
             Bienvenido a CotizaNet
-          </h1>
-          <p className="text-action-100 text-lg">
-            Gestiona tus cotizaciones, pedidos y cobranza desde un solo lugar
-          </p>
+            </h1>
+            <p className="max-w-2xl text-action-100 text-lg">
+              Empieza con clientes, cotizaciones y pedidos. Cuando tengas movimiento, revisa reportes para tomar decisiones.
+            </p>
+          </div>
+          <Button asChild variant="secondary" className="bg-white text-action-700 hover:bg-action-50">
+            <Link href="/quotes/new">
+              Crear cotizacion
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </div>
+
+      <DashboardOnboarding
+        clientsCount={data.clientsCount}
+        quotesCount={data.quotesCount}
+        ordersCount={data.ordersCount}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -160,42 +176,34 @@ export default async function DashboardPage() {
           value={data.quotesCount}
           icon={<FileText className="h-5 w-5" />}
           description="Total creadas"
-          trend="+12% este mes"
-          trendUp={true}
         />
         <StatCard
           title="Pedidos"
           value={data.ordersCount}
           icon={<Package className="h-5 w-5" />}
           description={`${data.pendingOrders} pendientes`}
-          trend="+8% este mes"
-          trendUp={true}
         />
         <StatCard
           title="Facturas"
           value={data.invoicesCount}
           icon={<DollarSign className="h-5 w-5" />}
           description={`${data.expiredInvoices} vencidas`}
-          trend="+5% este mes"
-          trendUp={true}
         />
         <StatCard
           title="Clientes"
           value={data.clientsCount}
           icon={<Users className="h-5 w-5" />}
           description="Registrados"
-          trend="+15% este mes"
-          trendUp={true}
         />
       </div>
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-2xl font-bold mb-6 text-primary-900">Acciones rápidas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <h2 className="text-2xl font-bold mb-6 text-primary-900">Acciones rapidas</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           <QuickActionCard
-            title="Nueva cotización"
-            description="Crea una cotización para un cliente"
+            title="Nueva cotizacion"
+            description="Crea una cotizacion para un cliente"
             icon={<FileText className="h-6 w-6" />}
             href="/quotes/new"
             color="blue"
@@ -213,6 +221,13 @@ export default async function DashboardPage() {
             icon={<Users className="h-6 w-6" />}
             href="/clients/new"
             color="purple"
+          />
+          <QuickActionCard
+            title="Ver reportes"
+            description="Ventas, cobranza y conversion"
+            icon={<BarChart3 className="h-6 w-6" />}
+            href="/reports"
+            color="blue"
           />
         </div>
       </div>
@@ -352,6 +367,7 @@ function StatCard({ title, value, icon, description, trend, trendUp }: {
     </Card>
   )
 }
+
 
 function QuickActionCard({ title, description, icon, href, color }: { 
   title: string, 

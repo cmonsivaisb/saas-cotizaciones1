@@ -17,16 +17,16 @@ export default function PricingPage() {
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" asChild>
-              <a href="/">Inicio</a>
+              <Link href="/">Inicio</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <a href="/terms">Términos</a>
+              <Link href="/terms">Términos</Link>
             </Button>
             <Button variant="ghost" size="sm" asChild>
-              <a href="/privacy">Privacidad</a>
+              <Link href="/privacy">Privacidad</Link>
             </Button>
             <Button size="sm" asChild>
-              <a href="/register">Comenzar gratis</a>
+              <Link href="/register">Comenzar gratis</Link>
             </Button>
           </div>
         </div>
@@ -54,7 +54,8 @@ export default function PricingPage() {
                 "Productos ilimitados",
                 "Cotizaciones ilimitadas",
                 "Pedidos ilimitados",
-                "Reportes completos",
+                "Reportes de ventas, cobranza e inventario",
+                "Alertas de stock bajo",
                 "Soporte prioritario",
               ]}
               cta="Comenzar gratis"

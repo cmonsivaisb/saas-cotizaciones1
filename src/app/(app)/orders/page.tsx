@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import ClientSearch from "@/components/client-search"
+import { QuoteLifecycleGuide } from "@/components/quote-lifecycle-guide"
 
 const orderStatusOptions = [
   { value: "all", label: "Todos" },
@@ -105,6 +106,8 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
           </Button>
         </div>
       </div>
+
+      <QuoteLifecycleGuide compact />
 
       {/* Search and Filters */}
       <Card>

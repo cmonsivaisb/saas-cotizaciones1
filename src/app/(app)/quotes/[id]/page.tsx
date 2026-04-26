@@ -14,6 +14,7 @@ import {
   Printer
 } from "lucide-react"
 import Link from "next/link"
+import { QuoteLifecycleGuide } from "@/components/quote-lifecycle-guide"
 
 export const dynamic = 'force-dynamic'
 
@@ -133,6 +134,7 @@ export default async function QuoteDetailsPage({ params }: { params: Promise<{ i
               </Button>
             </div>
           </div>
+          <QuoteLifecycleGuide compact />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -252,7 +254,7 @@ export default async function QuoteDetailsPage({ params }: { params: Promise<{ i
                       Editar cotización
                     </Link>
                   </Button>
-                  <Button className="w-full" variant="outline" asChild>
+                  <Button className="w-full" asChild>
                     <Link href={`/orders/new/from-quote/${quote.id}`}>
                       <CheckCircle className="h-4 w-4 mr-2" />
                       Convertir a pedido
